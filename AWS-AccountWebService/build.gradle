@@ -57,12 +57,12 @@ node {
 
 task npmBuild(type: NpmTask) {
     args = ['run', 'build']
-    workingDir = file("${projectDir}/src/main/frontend") // React 프로젝트 폴더 경로
+    workingDir = file("${projectDir}/src/main/aws-accountwebservice") // React 프로젝트 폴더 경로
 }
 
 task copyBuildFiles(type: Copy) {
     dependsOn npmBuild
-    from file("${projectDir}/src/main/frontend/build") // React 빌드 결과 폴더
+    from file("${projectDir}/src/main/aws-accountwebservice/build") // React 빌드 결과 폴더
     into file("${projectDir}/src/main/resources/static") // Spring Boot 정적 리소스 폴더
 }
 /// react build end
