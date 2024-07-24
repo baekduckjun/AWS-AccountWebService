@@ -1,0 +1,79 @@
+plugins {
+	id 'java'
+	id 'war'
+	id 'org.springframework.boot' version '3.3.2'
+	id 'io.spring.dependency-management' version '1.1.6'
+	id 'com.github.node-gradle.node' version '3.2.1'
+}
+
+group = 'account.webservice'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-web-services'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'mysql:mysql-connector-java:8.0.28'
+	implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0' // javax.persistence 사용중인데 수상함..
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'io.projectreactor:reactor-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	
+	compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+/// react build start
+node {
+    version = '20.13.1' // Node.js 버전
+    npmVersion = '10.5.2' // npm 버전
+    download = true
+}
+
+task npmBuild(type: NpmTask) {
+    args = ['run', 'build']
+    workingDir = file("${projectDir}/src/main/frontend") // React 프로젝트 폴더 경로
+}
+
+task copyBuildFiles(type: Copy) {
+    dependsOn npmBuild
+    from file("${projectDir}/src/main/frontend/build") // React 빌드 결과 폴더
+    into file("${projectDir}/src/main/resources/static") // Spring Boot 정적 리소스 폴더
+}
+/// react build end
+
+//bootWar.enabled = false
+//war.enabled = true
+
+bootWar {
+	archiveBaseName = 'AwsAccountWebServiceApplication'
+    archiveFileName = 'ROOT.war'
+    archiveVersion = "0.0.1"
+    mainClass = 'account.webservice.product.AwsAccountWebServiceApplication'  // 실제 메인 클래스 이름으로 변경
+    processResources.dependsOn copyBuildFiles
+}
