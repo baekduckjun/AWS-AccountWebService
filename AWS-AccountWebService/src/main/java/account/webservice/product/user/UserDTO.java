@@ -1,6 +1,7 @@
 package account.webservice.product.user;
 
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,86 +15,72 @@ import lombok.Setter;
 public class UserDTO {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String memberID;
-    private String memberPWD;
-    private String memberName;
-    private String memberEmail;
-    private String memberType;
-    private String memberRegDate;
+    private String userKey;
+    private String userID;
+    private String userPWD;
+    private String userName;
+    private String userEmail;
+    private String userAlias;
+    private String userType;
+    private String regDate;
+    private String isRegAccount;
 
     // getters and setters
     // constructors
     // other methods
     
-	public static UserDTO toMemberDTO(UserEntity memberEntity){
-    	UserDTO memberDTO = new UserDTO();
-    	memberDTO.setId(memberEntity.getId());
-        memberDTO.setMemberID(memberEntity.getMemberID());
-        memberDTO.setMemberPWD(memberEntity.getMemberPWD());
-        memberDTO.setMemberName(memberEntity.getMemberName());
-        memberDTO.setMemberEmail(memberEntity.getMemberEmail());
-        memberDTO.setMemberType(memberEntity.getMemberType());
-        memberDTO.setMemberRegDate(memberEntity.getMemberRegDate());
+	public static UserDTO toUserDTO(UserEntity userEntity){
+    	UserDTO userDTO = new UserDTO();
+    	userDTO.setUserKey(userEntity.getUserKey());
+    	userDTO.setUserID(userEntity.getUserID());
+    	userDTO.setUserPWD(userEntity.getUserPWD());
+    	userDTO.setUserName(userEntity.getUserName());
+    	userDTO.setUserEmail(userEntity.getUserEmail());
+    	userDTO.setUserAlias(userEntity.getUserAlias());
+    	userDTO.setUserType(userEntity.getUserType());
+    	userDTO.setRegDate(userEntity.getRegDate());
+    	userDTO.setIsRegAccount(userEntity.getIsRegAccount());
 
-        return memberDTO;
+        return userDTO;
     }
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getMemberID() {
-		return memberID;
-	}
-
-	public void setMemberID(String memberID) {
-		this.memberID = memberID;
-	}
-
-	public String getMemberPWD() {
-		return memberPWD;
-	}
-
-	public void setMemberPWD(String memberPWD) {
-		this.memberPWD = memberPWD;
-	}
-
-	public String getMemberName() {
-		return memberName;
-	}
-
-	public void setMemberName(String memberName) {
-		this.memberName = memberName;
-	}
-
-	public String getMemberEmail() {
-		return memberEmail;
-	}
-
-	public void setMemberEmail(String memberEmail) {
-		this.memberEmail = memberEmail;
+	private void setUserKey(String userKey) {
+		this.userKey = userKey;
 	}
 	
-	public String getMemberType() {
-		return memberType;
+	public String getUserKey() {
+		return this.userKey;
 	}
 
-	public void setMemberType(String memberType) {
-		this.memberType = memberType;
-	}
-	
-	public String getMemberRegDate() {
-		return memberRegDate;
+	public String getUserID() {
+		return this.userID;
 	}
 
-	public void setMemberRegDate(String memberRegDate) {
-		this.memberRegDate = memberRegDate;
+	public String getUserPWD() {
+		return this.userPWD;
 	}
 
+	public String getUserName() {
+		return this.userName;
+	}
+
+	public String getUserEmail() {
+		return this.userEmail;
+	}
+
+	public String getUserAlias(String userAlias) {
+		return this.userAlias;
+	}
+
+	public String getUserType() {
+		return this.userType;
+	}
+
+	public String getRegDate() {
+		return this.regDate;
+	}
+
+	public String getIsRegAccount() {
+		return this.isRegAccount;
+	}
 }

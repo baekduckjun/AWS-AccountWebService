@@ -1,6 +1,7 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import Login from './components/LoginPage/Login';
 
 function App() {
   return (
@@ -16,8 +17,9 @@ function App() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          Learn React
+          Learn Reassssct!!!!
         </a>
+        <Login></Login>
       </header>
     </div>
   );

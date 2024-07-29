@@ -1,26 +1,28 @@
 package account.webservice.product.user;
 
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import account.webservice.product.common.util.DateTimeUtil;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import account.webservice.product.common.util.EncryptionUtil;
 
 @Service
 public class UserServiceImpl implements UserService{
 
     @Autowired
     private UserRepository userRepository;
+    private final Logger log = LoggerFactory.getLogger(getClass());
     
     public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
     
     @Override
-    public UserDTO createMember(UserDTO memberDTO) {
+    public String createUser(UserDTO userDTO) {
     	/*
         MemberEntity memberEntity = new MemberEntity();
         memberEntity.setMemberID(memberDTO.getMemberID());
@@ -31,25 +33,49 @@ public class UserServiceImpl implements UserService{
         memberEntity.setMemberRegDate(DateTimeUtil.getCurrentTimeyymmddhhmmss());
         */
     	
-    	UserEntity memberEntity = UserEntity.builder()
-    			.memberID(memberDTO.getMemberID())
-    			.memberPWD(memberDTO.getMemberPWD())
-    			.memberName(memberDTO.getMemberName())
-    			.memberEmail(memberDTO.getMemberEmail())
-    			.memberType("member")
-    			.memberRegDate(DateTimeUtil.getCurrentTimeyymmddhhmmss())
-    			.build();
-    	
-        UserEntity savedEntity = userRepository.save(memberEntity);
-        return UserDTO.toMemberDTO(savedEntity);
-    }
-    /*
-    public UserDTO findByMemberID(String memberID) {
-        Optional<UserEntity> memberEntityOptional = memberRepository.findByMemberID(memberID);
-        
-        return memberEntityOptional.map(UserDTO::toMemberDTO).orElse(null);
+    	if (findByUserID(userDTO.getUserID()) == null) {
+	    	EncryptionUtil encrypt = new EncryptionUtil();
+	    	String userKey = "";
+	    	String encryptUserPWD = "";
+	    	String userPWD = userDTO.getUserPWD();
+	    	String regDate = DateTimeUtil.getCurrentTimeyymmddhhmmss();
+	    	try {
+				userKey = encrypt.AESEncrypt(userDTO.getUserID()+regDate);
+				encryptUserPWD = encrypt.EncryptSHA256(userPWD);
+			} catch (Exception e) {
+				log.error("error = {}", e);
+			}
+	    	
+	    	UserEntity userEntity = UserEntity.builder()
+	    			.userKey(userKey)
+	    			.userID(userDTO.getUserID())
+	    			.userPWD(encryptUserPWD)
+	    			.userName(userDTO.getUserName())
+	    			.userEmail(userDTO.getUserEmail())
+	    			.userAlias(userDTO.getUserAlias())
+	    			.userType("member")
+	    			.regDate(regDate)
+	    			.isRegAccount("N")
+	    			.build();
+	    	
+	        UserEntity savedEntity = userRepository.save(userEntity);
+	        
+	        if (savedEntity != null)
+	        	return "Success";
+	        else
+	        	return "Fail";
+    	} else {
+    		return "Exists";
+    	}
     }
 
+    public UserDTO findByUserID(String userID) {
+        Optional<UserEntity> memberEntityOptional = userRepository.findByUserID(userID);
+        
+        return memberEntityOptional.map(UserDTO::toUserDTO).orElse(null);
+    }
+
+    /*
     public UserDTO getMemberById(Long id) {
         Optional<UserEntity> memberEntityOptional = memberRepository.findById(id);
         return memberEntityOptional.map(UserDTO::toMemberDTO).orElse(null);
