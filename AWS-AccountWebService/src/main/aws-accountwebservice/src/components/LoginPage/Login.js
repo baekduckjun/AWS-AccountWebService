@@ -2,7 +2,7 @@ import React, { Component, useState, useEffect } from 'react';
 import axios from "axios";
 
 function Login(props) {
-  const [status, setStatus] = useState("main");
+  const [status, setStatus] = useState("login");
   const [memberID, setMemberID] = useState('');
   const [memberPWD, setMemberPWD] = useState('');
   const [memberName, setMemberName] = useState('');
@@ -94,7 +94,7 @@ function Login(props) {
       return;
     } 
 
-    let url = 'http://localhost:8080/'+loginURL+'/login';
+    let url = 'http://localhost:8080/'+loginURL+'/doLogin';
     axios({
       method: "POST",
       url: url,
@@ -124,15 +124,41 @@ function Login(props) {
     window.location.href = googleLoginUrl;
   };
 
-  if (status == 'main'){
+  if (status == 'login'){
     loginContents.push(
-      <div>
-        <button className="login" onClick={(event) => {
-          setStatus("sign");
-        }}>sign</button>
-        <button className="login" onClick={(event) => {
-          setStatus("login");
-        }}>login</button>
+      <div class="login_container">
+        <div className="logo">
+          <img src="loginLogo.jpg"></img>
+        </div>
+        <div className="container">
+          <form onSubmit={loginHandleSubmit}>
+            <input
+              type="text"
+              placeholder="✉ 사용자 아이디 또는 이메일 주소"
+              value={memberID}
+              onChange={(e) => setMemberID(e.target.value)}
+            />
+            <input
+              type="password"
+              placeholder="Caps Lock 해제 후 입력"
+              value={memberPWD}
+              onChange={(e) => setMemberPWD(e.target.value)}
+            />
+            <button className="login" type="submit">로그인</button>
+          </form>
+          <br/>
+          <div className="annotherLogin">
+            <img src="loginGoogle.png" onClick={() => window.open('https://accounts.google.com/v3/signin/identifier?authuser=0&continue=https%3A%2F%2Fmyaccount.google.com%2F%3Fhl%3Dko%26utm_source%3DOGB%26utm_medium%3Dact&ec=GAlAwAE&hl=ko&service=accountsettings&flowName=GlifWebSignIn&flowEntry=AddSession&dsh=S-587032328%3A1720164582207694&ddm=0', '_blank')}></img>
+            <img src="loginKakao.webp" onClick={() => window.open('https://accounts.kakao.com/login/?continue=https%3A%2F%2Fcs.kakao.com%2F#login', '_blank')}></img>
+            <img src="loginNaver.png" onClick={() => window.open('https://accounts.kakao.com/login/?continue=https%3A%2F%2Fcs.kakao.com%2F#login', '_blank')}></img>
+          </div>
+          <button className="signup" onClick={() => setStatus('sign')}>회원가입</button>
+        </div>
+        <div className="find-container">
+          <a className="finding-link">아이디</a>
+          <p>/</p>
+          <a className="finding-link">비밀번호 찾기</a>
+        </div>
       </div>
     );
   } else if (status == 'sign'){
@@ -169,38 +195,6 @@ function Login(props) {
           />
           <button className="login" type="submit">회원 등록</button>
         </form>
-      </div>
-    );
-  } else if (status == 'login') {
-
-    loginContents.push(
-      <div>
-        <div className="left">
-          <a href="#" className="button small" onClick={loginBack}>뒤로</a>
-        </div>
-        <form onSubmit={loginHandleSubmit}>
-          <input
-            type="text"
-            placeholder="아이디"
-            value={memberID}
-            onChange={(e) => setMemberID(e.target.value)}
-          /><br/>
-          <input
-            type="password"
-            placeholder="비밀번호"
-            value={memberPWD}
-            onChange={(e) => setMemberPWD(e.target.value)}
-          />
-          <button className="login" type="submit">로그인</button>
-        </form>
-        <button onClick={doGoogleLogin}>구글</button>
-      </div>
-    );
-  } else if (status == 'complelte') {
-    loginContents.push(
-      <div>
-        {memberName} 님 안녕하세요.
-        <button className="login" type="submit" onClick={logOut}>로그아웃</button>
       </div>
     );
   }
