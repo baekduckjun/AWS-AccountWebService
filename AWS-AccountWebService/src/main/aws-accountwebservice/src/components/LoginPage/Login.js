@@ -100,7 +100,7 @@ function Login(props) {
             <img src="/loginKakao.webp" onClick={() => window.open('https://accounts.kakao.com/login/?continue=https%3A%2F%2Fcs.kakao.com%2F#login', '_blank')}></img>
             <img src="/loginNaver.png" onClick={() => window.open('https://accounts.kakao.com/login/?continue=https%3A%2F%2Fcs.kakao.com%2F#login', '_blank')}></img>
           </div>
-          <button className="signup" onClick={goCreateUser}>다음 1/3</button>
+          <button className="signup" onClick={goCreateUser}>회원가입</button>
         </div>
         <div className="find-container">
           <a className="finding-link">아이디</a>

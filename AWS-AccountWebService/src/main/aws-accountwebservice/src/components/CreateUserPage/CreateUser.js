@@ -12,15 +12,15 @@ function CreateUser(props) {
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
   
-  let signContents = [];
+  let createUserContents = [];
   let userURL = "api/v1/user";
 
-  const goSignBack = (e) => {
+  const goCreateUserBack = (e) => {
     e.preventDefault();
     navigate("/", { state: { isBack: true } });
   }
 
-  const signHandleSubmit = async (e) => {
+  const createUserHandleSubmit = async (e) => {
     e.preventDefault();
 
     const requestData = {
@@ -70,16 +70,16 @@ function CreateUser(props) {
   }
 
   if (status == 'step1'){
-    signContents.push(
-      <div class="signup_container">
+    createUserContents.push(
+      <div class="createuser_container">
         <div class="container">
           <div className="goback">
-            <a href="#" className="" onClick={goSignBack}>뒤로</a>
+            <a href="#" className="" onClick={goCreateUserBack}>뒤로</a>
           </div>
           <div class="logo">
             <img src="/loginLogo.jpg" alt="logo"></img>
           </div>
-          <form onSubmit={signHandleSubmit}>
+          <form onSubmit={createUserHandleSubmit}>
               <input
                   type="text"
                   placeholder="✉ 사용자 아이디 또는 이메일 주소"
@@ -98,7 +98,7 @@ function CreateUser(props) {
                   value={userPWDConfirm}
                   onChange={(e) => setUserPWDConfirm(e.target.value)}
               />
-              <button class="signup" type="submit">회원가입</button>
+              <button class="signup" type="submit">다음 단계 (1/3)</button>
           </form>
         </div>
       </div>
@@ -107,7 +107,7 @@ function CreateUser(props) {
 
   return (
   <div>
-    {signContents}
+    {createUserContents}
   </div>
   );
 }
