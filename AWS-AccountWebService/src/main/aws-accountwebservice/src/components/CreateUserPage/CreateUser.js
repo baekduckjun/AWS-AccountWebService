@@ -1,7 +1,20 @@
 import React, { Component, useState, useEffect } from 'react';
 import 'components/CreateUserPage/CreateUser.css';
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from 'framer-motion';
 import axios from "axios";
+
+const backTransition = {
+  initial: { opacity: 0, x: 100 },   // 오른쪽에서 시작
+  animate: { opacity: 1, x: 0 },     // 화면 중앙에 정착
+  exit: { opacity: 0, x: -100 },     // 왼쪽으로 나감
+};
+
+const nextTransition = {
+  initial: { opacity: 0, x: -100 },  // 왼쪽에서 시작
+  animate: { opacity: 1, x: 0 },     // 화면 중앙에 정착
+  exit: { opacity: 0, x: 100 },      // 오른쪽으로 나감
+};
 
 function CreateUser(props) {
   const navigate = useNavigate();
@@ -15,9 +28,19 @@ function CreateUser(props) {
   let createUserContents = [];
   let userURL = "api/v1/user";
 
-  const goCreateUserBack = (e) => {
+  const goMain = (e) => {
     e.preventDefault();
     navigate("/", { state: { isBack: true } });
+  }
+
+  const goBack = (e) => {
+    e.preventDefault();
+    setStatus('step1');
+  }
+
+  const goNextStep = (e) => {
+    e.preventDefault();
+    setStatus('step2');
   }
 
   const createUserHandleSubmit = async (e) => {
@@ -71,21 +94,36 @@ function CreateUser(props) {
 
   if (status == 'step1'){
     createUserContents.push(
-      <div class="createuser_container">
-        <div class="container">
-          <div className="goback">
-            <a href="#" className="" onClick={goCreateUserBack}>뒤로</a>
+      <div className="createuser_container">
+        <div className="container">
+          <div className='header'>
+            <div className="g_goback">
+              <a href="#" onClick={goMain}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="goback-icon"
+                >
+                  <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+                </svg>
+              </a>
+            </div>
+            <div className='title'>회원가입</div>
           </div>
-          <div class="logo">
+          <div className="logo">
             <img src="/loginLogo.jpg" alt="logo"></img>
           </div>
           <form onSubmit={createUserHandleSubmit}>
+            <div className='input-id'>
               <input
                   type="text"
                   placeholder="✉ 사용자 아이디 또는 이메일 주소"
                   value={userID}
                   onChange={(e) => setUserID(e.target.value)}
               />
+              <button type="button" className="verify-button">인증하기</button>
+            </div>
               <input
                   type="password"
                   placeholder="비밀번호"
@@ -98,7 +136,56 @@ function CreateUser(props) {
                   value={userPWDConfirm}
                   onChange={(e) => setUserPWDConfirm(e.target.value)}
               />
-              <button class="signup" type="submit">다음 단계 (1/3)</button>
+              <button className="signup" onClick={goNextStep}>다음 단계 (1/2)</button>
+          </form>
+        </div>
+      </div>
+    );
+  } else if (status == 'step2'){
+    createUserContents.push(
+      <div className="createuser_container">
+        <div className="container">
+          <div className='header'>
+            <div className="g_goback">
+              <a href="#" onClick={goBack}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="goback-icon"
+                >
+                  <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+                </svg>
+              </a>
+            </div>
+            <div className='title'>회원가입</div>
+          </div>
+          <div className="logo">
+            <img src="/loginLogo.jpg" alt="logo"></img>
+          </div>
+          <form onSubmit={createUserHandleSubmit}>
+            <div className='input-id'>
+              <input
+                  type="text"
+                  placeholder="✉ 사용자 아이디 또는 이메일 주소"
+                  value={userID}
+                  onChange={(e) => setUserID(e.target.value)}
+              />
+              <button type="button" className="verify-button">인증하기</button>
+            </div>
+              <input
+                  type="password"
+                  placeholder="비밀번호"
+                  value={userPWD}
+                  onChange={(e) => setUserPWD(e.target.value)}
+              />
+              <input
+                  type="password"
+                  placeholder="비밀번호 확인"
+                  value={userPWDConfirm}
+                  onChange={(e) => setUserPWDConfirm(e.target.value)}
+              />
+              <button className="signup" type="submit">회원 가입</button>
           </form>
         </div>
       </div>
@@ -106,9 +193,26 @@ function CreateUser(props) {
   }
 
   return (
-  <div>
-    {createUserContents}
-  </div>
+    <AnimatePresence>
+      {status === 'step1' && (
+        <motion.div
+          key="step1"
+          variants={backTransition}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+        >{createUserContents}</motion.div>
+      )};
+      {status === 'step2' && (
+        <motion.div
+          key="step2"
+          variants={nextTransition}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+        >{createUserContents}</motion.div>
+      )};
+    </AnimatePresence>
   );
 }
 

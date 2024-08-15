@@ -5,13 +5,13 @@ import 'App.css';
 import Login from 'components/LoginPage/Login';
 import CreateUser from 'components/CreateUserPage/CreateUser';
 
-const forwardTransition = {
+const backTransition = {
   initial: { opacity: 0, x: 100 },   // 오른쪽에서 시작
   animate: { opacity: 1, x: 0 },     // 화면 중앙에 정착
   exit: { opacity: 0, x: -100 },     // 왼쪽으로 나감
 };
 
-const backwardTransition = {
+const nextTransition = {
   initial: { opacity: 0, x: -100 },  // 왼쪽에서 시작
   animate: { opacity: 1, x: 0 },     // 화면 중앙에 정착
   exit: { opacity: 0, x: 100 },      // 오른쪽으로 나감
@@ -21,7 +21,7 @@ function AnimatedRoutes() {
   const location = useLocation();
   const isBack = location.state?.isBack || false; // 뒤로 가기 여부 판단
 
-  const transition = isBack ? backwardTransition : forwardTransition;
+  const transition = isBack ? backTransition : nextTransition;
 
   return (
     <AnimatePresence mode="wait">

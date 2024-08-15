@@ -11,6 +11,19 @@ body {
     padding: 0;
 }
 
-.goback {
+.g_goback {
     text-align: left;
+}
+
+.g_goback .goback-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit; /* 부모 요소의 색상 상속 */
+}
+  
+.g_goback .goback-icon {
+    width: 1.5vw;  /* 아이콘의 너비 */
+    height: 5vh; /* 아이콘의 높이 */
+    color: #27344a;
 }
