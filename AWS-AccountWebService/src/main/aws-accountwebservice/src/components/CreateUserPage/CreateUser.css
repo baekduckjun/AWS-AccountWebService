@@ -196,10 +196,22 @@
         padding: 5vw; /* 패딩 조정 */
     }
 
+    .createuser_container .verify-button {
+        margin-left: 3vw; /* 입력 필드와 버튼 사이의 간격 (뷰포트 너비 비율) */
+        padding: 0.5vh 1vw; /* 상대적인 패딩 (뷰포트 높이 및 너비 비율) */
+        font-size: 2.5vw; /* 폰트 크기 (뷰포트 너비 비율) */
+        cursor: pointer;
+        background-color: #007bff; /* 버튼 배경색 */
+        color: white; /* 버튼 텍스트 색 */
+        border: none;
+        border-radius: 0.5vh; /* 버튼의 테두리 둥글게 (뷰포트 높이 비율) */
+        transition: transform 0.3s ease;
+    }
+
     .createuser_container input[type="text"],
     .createuser_container input[type="password"],
     .createuser_container input[type="email"] {
-        font-size: 4vw; /* 폰트 크기 조정 */
+        font-size: 3vw; /* 폰트 크기 조정 */
         padding: 3vw; /* 패딩 조정 */
         height: 7vh; /* 높이 조정 */
     }
@@ -230,6 +242,18 @@
 
     .createuser_container .container {
         padding: 4vw; /* 패딩 조정 */
+    }
+
+    .createuser_container .verify-button {
+        margin-left: 1vw; /* 입력 필드와 버튼 사이의 간격 (뷰포트 너비 비율) */
+        padding: 0.5vh 1vw; /* 상대적인 패딩 (뷰포트 높이 및 너비 비율) */
+        font-size: 0.8vw; /* 폰트 크기 (뷰포트 너비 비율) */
+        cursor: pointer;
+        background-color: #007bff; /* 버튼 배경색 */
+        color: white; /* 버튼 텍스트 색 */
+        border: none;
+        border-radius: 0.5vh; /* 버튼의 테두리 둥글게 (뷰포트 높이 비율) */
+        transition: transform 0.3s ease;
     }
 
     .createuser_container input[type="text"],

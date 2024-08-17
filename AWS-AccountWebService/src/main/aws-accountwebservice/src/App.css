@@ -42,3 +42,34 @@ body {
     animation: validation_blink 1s linear 3; /* 1초 간격으로 깜빡임 */
     animation-fill-mode: none; /* 애니메이션이 끝난 후 마지막 상태를 유지 */
 }
+
+/* 미디어 쿼리: 모바일 디바이스 */
+@media (max-width: 600px) {
+
+    .g_goback .goback-icon {
+        width: 7vw;  /* 아이콘의 너비 */
+        height: 5vh; /* 아이콘의 높이 */
+        color: #27344a;
+    }
+
+    .validation {
+        text-align: left;
+        font-size: 3vw;
+        padding-left: 1vw;
+        color:#d1180b;
+        animation: validation_blink 1s linear 3; /* 1초 간격으로 깜빡임 */
+        animation-fill-mode: none; /* 애니메이션이 끝난 후 마지막 상태를 유지 */
+    }
+}
+
+/* 미디어 쿼리: 태블릿 및 큰 화면 디바이스 */
+@media (min-width: 601px) and (max-width: 1024px) {
+    .validation {
+        text-align: left;
+        font-size: 3vw;
+        padding-left: 1vw;
+        color:#d1180b;
+        animation: validation_blink 1s linear 3; /* 1초 간격으로 깜빡임 */
+        animation-fill-mode: none; /* 애니메이션이 끝난 후 마지막 상태를 유지 */
+    }
+}
