@@ -35,7 +35,7 @@ body {
 .login_container .container {
     text-align: center;
     background-color: white;
-    padding: 2vw; /* 패딩을 비율로 설정 */
+    padding: 1vw; /* 패딩을 비율로 설정 */
     border-radius: 1vw;
     box-shadow: 0 1vw 3vw rgba(24, 199, 205, 0.1);
     margin-top: 2vh; /* 상단 텍스트와 컨테이너 사이 간격 비율 설정 */
@@ -52,7 +52,7 @@ body {
     color: black;
     font-size: 1vw; /* 폰트 크기를 비율로 설정 */
     padding: 1.3vw;
-    margin: 1.5vh 0;
+    margin: 1.5vh 0 0 0;
     height: 5vh; /* 높이를 비율로 설정 */
     box-sizing: border-box;
     border: 0.1vw solid #ccc;

@@ -4,13 +4,15 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from "axios";
 
-const backTransition = {
+import { validation } from 'Utile'; // utile.js 파일을 가져옴
+
+const nextTransition = {
   initial: { opacity: 0, x: 100 },   // 오른쪽에서 시작
   animate: { opacity: 1, x: 0 },     // 화면 중앙에 정착
   exit: { opacity: 0, x: -100 },     // 왼쪽으로 나감
 };
 
-const nextTransition = {
+const backTransition = {
   initial: { opacity: 0, x: -100 },  // 왼쪽에서 시작
   animate: { opacity: 1, x: 0 },     // 화면 중앙에 정착
   exit: { opacity: 0, x: 100 },      // 오른쪽으로 나감
@@ -23,7 +25,19 @@ function CreateUser(props) {
   const [userPWD, setUserPWD] = useState('');
   const [userPWDConfirm, setUserPWDConfirm] = useState('');
   const [userName, setUserName] = useState('');
+  const [userPhone, setUserPhone] = useState('');
   const [userEmail, setUserEmail] = useState('');
+  const [userAlias, setUserAlias] = useState('');
+
+  {/** 밸리데이션 **/}
+  const [userIDErrorMessage, setUserIDErrorMessage] = useState('');
+  const [userPWDErrorMessage, setUserPWDErrorMessage] = useState('');
+  const [userPWDConfirmErrorMessage, setUserPWDConfirmErrorMessage] = useState('');
+  const [userNameErrorMessage, setUserNameErrorMessage] = useState('');
+  const [userPhoneErrorMessage, setUserPhoneErrorMessage] = useState('');
+  const [userEmailErrorMessage, setUserEmailErrorMessage] = useState('');
+  const [userAliasErrorMessage, setUserAliasErrorMessage] = useState('');
+  {/** 밸리데이션 **/}
   
   let createUserContents = [];
   let userURL = "api/v1/user";
@@ -43,6 +57,72 @@ function CreateUser(props) {
     setStatus('step2');
   }
 
+  const findByID = async (e) => {
+    e.preventDefault();
+
+    const requestData = {
+      "userID": userID
+    };
+
+    if ("" == userID) {
+      alert('아이디를 입력하세요');
+      return;
+    } 
+
+    axios({
+      method: "POST",
+      url: 'http://localhost:8080/'+userURL+'/findByID',
+      data: requestData,
+      // header에서 JSON 타입의 데이터라는 것을 명시
+      headers: {'Content-type': 'application/json'}
+    }).then((res)=>{
+      let result = res.data;
+      let resultMessage = result.result;
+      let resultData = result.data;
+      if ( resultMessage != 'Success') {
+        alert(resultMessage);
+      } else {
+        // API로 부터 받은 데이터 출력
+        
+      }
+    }).catch(error=>{
+        alert(error);
+    });
+  }
+
+  const verifyPhone = async (e) => {
+    e.preventDefault();
+
+    const requestData = {
+      "userPhone": userPhone
+    };
+
+    if ("" == userPhone) {
+      alert('폰을 입력하세요');
+      return;
+    } 
+
+    axios({
+      method: "POST",
+      url: 'http://localhost:8080/'+userURL+'/findByID',
+      data: requestData,
+      // header에서 JSON 타입의 데이터라는 것을 명시
+      headers: {'Content-type': 'application/json'}
+    }).then((res)=>{
+      let result = res.data;
+      let resultMessage = result.result;
+      let resultData = result.data;
+      if ( resultMessage != 'Success') {
+        alert(resultMessage);
+      } else {
+        // API로 부터 받은 데이터 출력
+        
+      }
+    }).catch(error=>{
+        alert(error);
+    });
+  }
+
   const createUserHandleSubmit = async (e) => {
     e.preventDefault();
 
@@ -51,7 +131,9 @@ function CreateUser(props) {
       "userPWD": userPWD,
       "userPWDConfirm" : userPWDConfirm,
       "userName": userName,
-      "userEmail": userEmail
+      "userPhone": userPhone,
+      "userEmail": userEmail,
+      "userAlias": userAlias
     };
 
     if ("" == userID) {
@@ -65,9 +147,17 @@ function CreateUser(props) {
     if ("" == userName) {
       alert('이름을 입력하세요');
       return;
+    }
+    if ("" == userPhone) {
+      alert('폰을 입력하세요');
+      return;
     } 
     if ("" == userEmail) {
       alert('이메일을 입력하세요');
+      return;
+    }
+    if ("" == userAlias) {
+      alert('별명을 입력하세요');
       return;
     } 
 
@@ -114,29 +204,35 @@ function CreateUser(props) {
           <div className="logo">
             <img src="/loginLogo.jpg" alt="logo"></img>
           </div>
-          <form onSubmit={createUserHandleSubmit}>
+          <form>
             <div className='input-id'>
               <input
                   type="text"
                   placeholder="✉ 사용자 아이디 또는 이메일 주소"
                   value={userID}
                   onChange={(e) => setUserID(e.target.value)}
+                  onBlur={() => validation('id', userID, setUserIDErrorMessage)}
               />
-              <button type="button" className="verify-button">인증하기</button>
+              <button type="button" className="verify-button" onClick={findByID}>인증하기</button>
             </div>
-              <input
-                  type="password"
-                  placeholder="비밀번호"
-                  value={userPWD}
-                  onChange={(e) => setUserPWD(e.target.value)}
-              />
-              <input
-                  type="password"
-                  placeholder="비밀번호 확인"
-                  value={userPWDConfirm}
-                  onChange={(e) => setUserPWDConfirm(e.target.value)}
-              />
-              <button className="signup" onClick={goNextStep}>다음 단계 (1/2)</button>
+            <div className='validation'>{userIDErrorMessage}&nbsp;</div>
+            <input
+                type="password"
+                placeholder="비밀번호"
+                value={userPWD}
+                onChange={(e) => setUserPWD(e.target.value)}
+                onBlur={() => validation('pwd', userPWD, setUserPWDErrorMessage)}
+            />
+            <div className='validation'>{userPWDErrorMessage}&nbsp;</div>
+            <input
+                type="password"
+                placeholder="비밀번호 확인"
+                value={userPWDConfirm}
+                onChange={(e) => setUserPWDConfirm(e.target.value)}
+                onBlur={() => validation('pwdConfirm', userPWDConfirm, setUserPWDConfirmErrorMessage)}
+            />
+            <div className='validation'>{userPWDConfirmErrorMessage}&nbsp;</div>
+            <button className="signup" onClick={goNextStep}>다음 단계 (1/2)</button>
           </form>
         </div>
       </div>
@@ -164,28 +260,42 @@ function CreateUser(props) {
             <img src="/loginLogo.jpg" alt="logo"></img>
           </div>
           <form onSubmit={createUserHandleSubmit}>
+            <input
+              type="text"
+              placeholder="이름 입력"
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
+              onBlur={() => validation('name', userName, setUserNameErrorMessage)}
+            />
+            <div className='validation'>{userNameErrorMessage}&nbsp;</div>
             <div className='input-id'>
               <input
                   type="text"
-                  placeholder="✉ 사용자 아이디 또는 이메일 주소"
-                  value={userID}
-                  onChange={(e) => setUserID(e.target.value)}
+                  placeholder="전화번호 입력"
+                  value={userPhone}
+                  onChange={(e) => setUserPhone(e.target.value)}
+                  onBlur={() => validation('phone', userPhone, setUserPhoneErrorMessage)}
               />
-              <button type="button" className="verify-button">인증하기</button>
+              <button type="button" className="verify-button" onClick={verifyPhone}>인증하기</button>
             </div>
-              <input
-                  type="password"
-                  placeholder="비밀번호"
-                  value={userPWD}
-                  onChange={(e) => setUserPWD(e.target.value)}
-              />
-              <input
-                  type="password"
-                  placeholder="비밀번호 확인"
-                  value={userPWDConfirm}
-                  onChange={(e) => setUserPWDConfirm(e.target.value)}
-              />
-              <button className="signup" type="submit">회원 가입</button>
+            <div className='validation'>{userPhoneErrorMessage}&nbsp;</div>
+            <input
+              type="text"
+              placeholder="이메일 주소 입력"
+              value={userEmail}
+              onChange={(e) => setUserEmail(e.target.value)}
+              onBlur={() => validation('email', userEmail, setUserEmailErrorMessage)}
+            />
+            <div className='validation'>{userEmailErrorMessage}&nbsp;</div>
+            <input
+              type="text"
+              placeholder="별명 입력"
+              value={userAlias}
+              onChange={(e) => setUserAlias(e.target.value)}
+              onBlur={() => validation('alias', userAlias, setUserAliasErrorMessage)}
+            />
+            <div className='validation'>{userAliasErrorMessage}&nbsp;</div>
+            <button className="signup" type="submit">회원 가입</button>
           </form>
         </div>
       </div>
@@ -193,7 +303,7 @@ function CreateUser(props) {
   }
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {status === 'step1' && (
         <motion.div
           key="step1"

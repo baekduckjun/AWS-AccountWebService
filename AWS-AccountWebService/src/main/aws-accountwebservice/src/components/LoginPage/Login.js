@@ -3,16 +3,23 @@ import 'components/LoginPage/Login.css';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+import { validation } from 'Utile'; // utile.js 파일을 가져옴
+
 function Login(props) {
   const navigate = useNavigate();
   const [status, setStatus] = useState("login");
-  const [memberID, setMemberID] = useState('');
-  const [memberPWD, setMemberPWD] = useState('');
-  const [memberName, setMemberName] = useState('');
-  const [memberEmail, setMemberEmail] = useState('');
+  const [userID, setUserID] = useState('');
+  const [userPWD, setUserPWD] = useState('');
+  const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
+
+  {/** 밸리데이션 **/}
+  const [userIDErrorMessage, setUserIDErrorMessage] = useState('');
+  const [userPWDErrorMessage, setUserPWDErrorMessage] = useState('');
+  {/** 밸리데이션 **/}
   
   let loginContents = [];
-  let memberURL = "api/v1/user";
+  let userURL = "api/v1/user";
   let loginURL = "api/v1/login";
   const googleLoginUrl = 'https://accounts.google.com/o/oauth2/v2/auth?client_id='
     + '246203568306-3m9pf28g5t23q4937o21b8obninr9us0.apps.googleusercontent.com'
@@ -22,25 +29,19 @@ function Login(props) {
 
   const goCreateUser = (e) => {
     e.preventDefault();
-    navigate("components/CreateUserPage/CreateUser");
+    navigate("/components/CreateUserPage/CreateUser");
   }
 
   const loginHandleSubmit = async (e) => {
     e.preventDefault();
     
-    const requestData = {
-      "memberID": memberID,
-      "memberPWD": memberPWD
-    };
+    validation('id', userID, setUserIDErrorMessage);
+    validation('pwd', userPWD, setUserPWDErrorMessage);
 
-    if ("" == memberID) {
-      alert('아이디를 입력하세요');
-      return;
-    } 
-    if ("" == memberPWD) {
-      alert('비밀번호를 입력하세요');
-      return;
-    } 
+    const requestData = {
+      "userID": userID,
+      "userPWD": userPWD
+    };
 
     let url = 'http://localhost:8080/'+loginURL+'/doLogin';
     axios({
@@ -58,10 +59,10 @@ function Login(props) {
         alert(resultMessage);
       } else {
         // API로 부터 받은 데이터 출력
-        setMemberID(resultData.memberID);
-        setMemberName(resultData.memberName);
-        setMemberEmail(resultData.memberEmail);
-        setStatus('complelte');
+        //setMemberID(resultData.memberID);
+        //setMemberName(resultData.memberName);
+       // setMemberEmail(resultData.memberEmail);
+        //setStatus('complelte');
       }
     }).catch(error=>{
         alert(error);
@@ -83,15 +84,19 @@ function Login(props) {
             <input
               type="text"
               placeholder="✉ 사용자 아이디 또는 이메일 주소"
-              value={memberID}
-              onChange={(e) => setMemberID(e.target.value)}
+              value={userID}
+              onChange={(e) => setUserID(e.target.value)}
+              onBlur={() => validation('id', userID, setUserIDErrorMessage)}
             />
+            <div className='validation'>{userIDErrorMessage}&nbsp;</div>
             <input
               type="password"
               placeholder="Caps Lock 해제 후 입력"
-              value={memberPWD}
-              onChange={(e) => setMemberPWD(e.target.value)}
+              value={userPWD}
+              onChange={(e) => setUserPWD(e.target.value)}
+              onBlur={() => validation('pwd', userPWD, setUserPWDErrorMessage)}
             />
+            <div className='validation'>{userPWDErrorMessage}&nbsp;</div>
             <button className="login" type="submit">로그인</button>
           </form>
           <br/>

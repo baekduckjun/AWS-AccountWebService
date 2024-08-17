@@ -27,3 +27,10 @@ body {
     height: 5vh; /* 아이콘의 높이 */
     color: #27344a;
 }
+
+.validation {
+    text-align: left;
+    font-size: 0.8vw;
+    padding-left: 1vw;
+    color:#d1180b;
+}
