@@ -28,9 +28,17 @@ body {
     color: #27344a;
 }
 
+@keyframes validation_blink {
+    0% { opacity: 1; }
+    50% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
 .validation {
     text-align: left;
     font-size: 0.8vw;
     padding-left: 1vw;
     color:#d1180b;
+    animation: validation_blink 1s linear 3; /* 1초 간격으로 깜빡임 */
+    animation-fill-mode: none; /* 애니메이션이 끝난 후 마지막 상태를 유지 */
 }
