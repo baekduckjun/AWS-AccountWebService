@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import account.webservice.product.common.util.EncryptionUtil;
+
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,5 +35,30 @@ public class UserController {
     	}
     	
         return ResponseEntity.ok(response);
+    }
+    
+    @PostMapping("/findbyid")
+    public ResponseEntity<Map<String, Object>> findByUserID(@RequestBody UserDTO user) {
+    
+    	try {
+    		String userID = user.getUserID();
+    		
+    		EncryptionUtil URLEncoding = new EncryptionUtil();
+    		userID = URLDecoder.decode(userID, "UTF-8");
+			userID = URLEncoding.AESDecrypt(userID);
+			UserDTO findByUserIDResult = userService.findByUserID(userID);
+	        
+	        if (findByUserIDResult == null) {
+	        	response.put("result", "Not Exsits");
+	        } else {
+	        	response.put("result", "Success");
+	            response.put("data", findByUserIDResult);
+	        }
+	        return ResponseEntity.ok(response);
+		} catch (Exception e) {
+			response.put("result", "Service Error");
+			response.put("data", e);
+			return ResponseEntity.ok(response);
+		}
     }
 }

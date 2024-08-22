@@ -91,7 +91,7 @@ function Login(props) {
             <div className='validation'>{userIDErrorMessage}&nbsp;</div>
             <input
               type="password"
-              placeholder="Caps Lock 해제 후 입력"
+              placeholder="비밀번호 입력"
               value={userPWD}
               onChange={(e) => setUserPWD(e.target.value)}
               onBlur={() => validation('pwd', userPWD, setUserPWDErrorMessage)}

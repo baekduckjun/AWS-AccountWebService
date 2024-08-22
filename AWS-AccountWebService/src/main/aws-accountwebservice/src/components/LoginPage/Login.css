@@ -187,8 +187,20 @@ body {
         font-size: 3.5vw; /* 폰트 크기 조정 */
     }
 
+    .login_container .find-container {
+        display: flex; /* Flexbox를 사용하여 아이템을 수평으로 배치 */
+        align-items: center; /* 세로 방향으로 중앙 정렬 */
+        justify-content: flex-end; /* 가로 방향으로 오른쪽 정렬 */
+        gap: 0.5rem; /* 아이템들 사이의 간격 설정 */
+        margin-top: 2vh; /* 상단 여백 비율 설정 */
+        width: 85%; /* 부모 요소에 맞게 조정 */
+    }
+
     .login_container .find-container a {
-        font-size: 3.5vw; /* 폰트 크기 조정 */
+        color: #1e90ff; /* 링크 색상 설정 */
+        text-decoration: none; /* 링크 밑줄 제거 */
+        font-size: 0.9rem; /* 링크 폰트 크기 설정 */
+        transition: color 0.2s ease; /* 호버 시 색상 변경 애니메이션 추가 */
     }
 }
 
