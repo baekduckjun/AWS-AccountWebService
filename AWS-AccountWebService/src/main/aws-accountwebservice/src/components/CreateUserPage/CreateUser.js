@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import axios from "axios";
 
 import { validation } from 'Utile'; // utile.js 파일을 가져옴
+import { EncryptionUtil } from 'Utile'; // utile.js 파일을 가져옴
 
 const nextTransition = {
   initial: { opacity: 0, x: 100 },   // 오른쪽에서 시작
@@ -60,18 +61,19 @@ function CreateUser(props) {
   const findByID = async (e) => {
     e.preventDefault();
 
-    const requestData = {
-      "userID": userID
-    };
-
     if ("" == userID) {
       alert('아이디를 입력하세요');
       return;
     } 
 
+    const EncryptUserID = EncryptionUtil('encrypt', userID);
+    const requestData = {
+      "userID": EncryptUserID
+    };
+
     axios({
       method: "POST",
-      url: 'http://localhost:8080/'+userURL+'/findByID',
+      url: 'http://localhost:8080/'+userURL+'/findbyid',
       data: requestData,
       // header에서 JSON 타입의 데이터라는 것을 명시
       headers: {'Content-type': 'application/json'}
@@ -83,7 +85,7 @@ function CreateUser(props) {
         alert(resultMessage);
       } else {
         // API로 부터 받은 데이터 출력
-        
+        alert(resultMessage);
       }
     }).catch(error=>{
         alert(error);
