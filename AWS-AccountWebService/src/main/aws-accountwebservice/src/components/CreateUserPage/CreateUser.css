@@ -182,7 +182,7 @@
 
     .createuser_container .logo {
         margin-bottom: 2vh; /* 상단 텍스트와 컨테이너 사이의 간격 비율 설정 */
-        width: 85%; /* 부모 요소에 맞게 조정 */
+        width: 100%; /* 부모 요소에 맞게 조정 */
         max-width: 70vw; /* 최대 너비 설정 */
         text-align: center; /* 이미지 중앙 정렬 */
     }

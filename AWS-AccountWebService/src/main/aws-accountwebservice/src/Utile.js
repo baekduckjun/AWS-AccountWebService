@@ -1,7 +1,7 @@
 import CryptoJS from 'crypto-js';
 
 export const EncryptionUtil = (type, value) => {
-  const ENCRYPTKEY = "duduck1234567890";
+  const ENCRYPTKEY=process.env.REACT_APP_API_ENCRYPTKEY;
   
   // 비밀 키를 생성하는 함수
   const getKey = (key) => {
@@ -66,12 +66,20 @@ export const EncryptionUtil = (type, value) => {
 
 };
 
-export const validation = (type, value, setErrorMessage) => {
+export const validation = (type, type2, value, setErrorMessage) => {
   if (type === 'id') {
     if (value.trim() === "") {
       setErrorMessage('아이디를 입력하세요');
     } else {
       setErrorMessage('');
+    }
+  } else if (type === 'verifyID') {
+    if(type2 ==='avariable') {
+      setErrorMessage('사용가능한 아이디입니다.');
+    } else if (type2 === 'exists'){
+      setErrorMessage('사용중인 아이디가 있습니다.');
+    } else {
+      setErrorMessage('오른쪽에 인증하기 버튼을 누러 인증하세요');
     }
   } else if (type === 'pwd') {
     if (value.trim() === "") {

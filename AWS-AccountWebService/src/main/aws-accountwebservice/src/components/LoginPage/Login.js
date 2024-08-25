@@ -35,8 +35,8 @@ function Login(props) {
   const loginHandleSubmit = async (e) => {
     e.preventDefault();
     
-    validation('id', userID, setUserIDErrorMessage);
-    validation('pwd', userPWD, setUserPWDErrorMessage);
+    validation('id', '', userID, setUserIDErrorMessage);
+    validation('pwd', '', userPWD, setUserPWDErrorMessage);
 
     const requestData = {
       "userID": userID,
@@ -86,7 +86,7 @@ function Login(props) {
               placeholder="✉ 사용자 아이디 또는 이메일 주소"
               value={userID}
               onChange={(e) => setUserID(e.target.value)}
-              onBlur={() => validation('id', userID, setUserIDErrorMessage)}
+              onBlur={() => validation('id', '', userID, setUserIDErrorMessage)}
             />
             <div className='validation'>{userIDErrorMessage}&nbsp;</div>
             <input
@@ -94,7 +94,7 @@ function Login(props) {
               placeholder="비밀번호 입력"
               value={userPWD}
               onChange={(e) => setUserPWD(e.target.value)}
-              onBlur={() => validation('pwd', userPWD, setUserPWDErrorMessage)}
+              onBlur={() => validation('pwd', '', userPWD, setUserPWDErrorMessage)}
             />
             <div className='validation'>{userPWDErrorMessage}&nbsp;</div>
             <button className="login" type="submit">로그인</button>

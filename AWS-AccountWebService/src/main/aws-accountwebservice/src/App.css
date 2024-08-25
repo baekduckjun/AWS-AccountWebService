@@ -34,11 +34,20 @@ body {
     100% { opacity: 1; }
 }
 
-.validation {
+.error-validation {
     text-align: left;
     font-size: 0.8vw;
     padding-left: 1vw;
     color:#d1180b;
+    animation: validation_blink 1s linear 3; /* 1초 간격으로 깜빡임 */
+    animation-fill-mode: none; /* 애니메이션이 끝난 후 마지막 상태를 유지 */
+}
+
+.info-validation {
+    text-align: left;
+    font-size: 0.8vw;
+    padding-left: 1vw;
+    color:#1616d5;
     animation: validation_blink 1s linear 3; /* 1초 간격으로 깜빡임 */
     animation-fill-mode: none; /* 애니메이션이 끝난 후 마지막 상태를 유지 */
 }
@@ -52,7 +61,7 @@ body {
         color: #27344a;
     }
 
-    .validation {
+    .error-validation {
         text-align: left;
         font-size: 3vw;
         padding-left: 1vw;
@@ -60,15 +69,33 @@ body {
         animation: validation_blink 1s linear 3; /* 1초 간격으로 깜빡임 */
         animation-fill-mode: none; /* 애니메이션이 끝난 후 마지막 상태를 유지 */
     }
+
+    .info-validation {
+        text-align: left;
+        font-size: 3vw;
+        padding-left: 1vw;
+        color:#1616d5;
+        animation: validation_blink 1s linear 3; /* 1초 간격으로 깜빡임 */
+        animation-fill-mode: none; /* 애니메이션이 끝난 후 마지막 상태를 유지 */
+    }
 }
 
 /* 미디어 쿼리: 태블릿 및 큰 화면 디바이스 */
 @media (min-width: 601px) and (max-width: 1024px) {
-    .validation {
+    .error-validation {
         text-align: left;
         font-size: 3vw;
         padding-left: 1vw;
         color:#d1180b;
+        animation: validation_blink 1s linear 3; /* 1초 간격으로 깜빡임 */
+        animation-fill-mode: none; /* 애니메이션이 끝난 후 마지막 상태를 유지 */
+    }
+
+    .info-validation {
+        text-align: left;
+        font-size: 3vw;
+        padding-left: 1vw;
+        color:#1616d5;
         animation: validation_blink 1s linear 3; /* 1초 간격으로 깜빡임 */
         animation-fill-mode: none; /* 애니메이션이 끝난 후 마지막 상태를 유지 */
     }
