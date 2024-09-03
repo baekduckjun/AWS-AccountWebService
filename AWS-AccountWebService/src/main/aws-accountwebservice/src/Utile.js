@@ -91,7 +91,7 @@ export const validation = (type, type2, value, setErrorMessage) => {
     if (value.trim() === "") {
       setErrorMessage('비밀번호를 입력하세요');
     } else {
-      if (type2 != value) {
+      if (type2 == 'notEuqal') {
         setErrorMessage('비밀번호가 맞지 않습니다. 다시 입력해주세요.');
       } else {
         setErrorMessage('');

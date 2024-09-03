@@ -30,17 +30,15 @@ function Login(props) {
     e.preventDefault();
     navigate("/components/CreateUserPage/CreateUser");
   }
-{/* 아이디 찾기 및 비밀번호 찾기 페이지
   const goFindByID = (e) => {
     e.preventDefault();
     navigate("/components/CreateUserPage/CreateUser");
   }
-
-  const goCreateUser = (e) => {
+  const goResetPWD = (e) => {
     e.preventDefault();
     navigate("/components/CreateUserPage/CreateUser");
   }
-*/}
+  
   const loginHandleSubmit = async (e) => {
     e.preventDefault();
     
