@@ -55,6 +55,20 @@ function AnimatedRoutes() {
             </motion.div>
           }
         />
+        {/* 아이디 및 패스워드 찾기 페이지 */}
+        <Route
+          path="/components/FindByIDPage/FindByID"
+          element={
+            <motion.div
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              variants={transition}
+            >
+              <CreateUser />
+            </motion.div>
+          }
+        />
       </Routes>
     </AnimatePresence>
   );

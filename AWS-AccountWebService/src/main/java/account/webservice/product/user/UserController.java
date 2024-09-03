@@ -21,6 +21,22 @@ public class UserController {
 	
     @Autowired
     private UserService userService;
+    /*
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, Object>> createUser(@RequestBody UserDTO userDTO) {
+    	String createUserResult = userService.createUser(userDTO);
+    	log.info("createUserResult = {}", createUserResult);
+    	if ("Success".equals(createUserResult)) {
+    		response.put("result", "Success");
+            response.put("data", createUserResult);
+    	} else {
+    		response.put("result", "Fail");
+            response.put("data", createUserResult);
+    	}
+    	
+        return ResponseEntity.ok(response);
+    }
+    */
 
     @PostMapping("/create")
     public ResponseEntity<Map<String, Object>> createUser(@RequestBody UserDTO userDTO) {

@@ -74,7 +74,7 @@ export const validation = (type, type2, value, setErrorMessage) => {
       setErrorMessage('');
     }
   } else if (type === 'verifyID') {
-    if(type2 ==='avariable') {
+    if(type2 ==='available') {
       setErrorMessage('사용가능한 아이디입니다.');
     } else if (type2 === 'exists'){
       setErrorMessage('사용중인 아이디가 있습니다.');
@@ -91,7 +91,11 @@ export const validation = (type, type2, value, setErrorMessage) => {
     if (value.trim() === "") {
       setErrorMessage('비밀번호를 입력하세요');
     } else {
-      setErrorMessage('');
+      if (type2 != value) {
+        setErrorMessage('비밀번호가 맞지 않습니다. 다시 입력해주세요.');
+      } else {
+        setErrorMessage('');
+      }
     }
   } else if (type === 'name') {
     if (value.trim() === "") {
@@ -104,6 +108,22 @@ export const validation = (type, type2, value, setErrorMessage) => {
       setErrorMessage('전화번호를 입력하세요');
     } else {
       setErrorMessage('');
+    }
+  } else if (type === 'verifyPhone') {
+    if (value.trim() === "") {
+      setErrorMessage('전화번호가 잘못되었습니다.');
+    } else {
+      if (type2 === 'sendding') {
+        setErrorMessage('전송되었습니다.');
+      } else if (type2 === 'available') {
+        setErrorMessage('인증되었습니다.');
+      } else if (type2 === 'error') {
+        setErrorMessage('인증번호가 잘못되었습니다.');
+      } else if (type2 === 'notVerifyPhone'){
+        setErrorMessage('핸드폰 인증을 진행하세요');
+      } else {
+        setErrorMessage('');
+      }
     }
   } else if (type === 'email') {
     if (value.trim() === "") {

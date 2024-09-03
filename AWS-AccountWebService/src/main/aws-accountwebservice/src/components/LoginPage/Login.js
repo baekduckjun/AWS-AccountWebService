@@ -20,7 +20,6 @@ function Login(props) {
   
   let loginContents = [];
   let userURL = "api/v1/user";
-  let loginURL = "api/v1/login";
   const googleLoginUrl = 'https://accounts.google.com/o/oauth2/v2/auth?client_id='
     + '246203568306-3m9pf28g5t23q4937o21b8obninr9us0.apps.googleusercontent.com'
     + '&redirect_uri=https://baekduduck.duckdns.org'
@@ -31,19 +30,31 @@ function Login(props) {
     e.preventDefault();
     navigate("/components/CreateUserPage/CreateUser");
   }
+{/* 아이디 찾기 및 비밀번호 찾기 페이지
+  const goFindByID = (e) => {
+    e.preventDefault();
+    navigate("/components/CreateUserPage/CreateUser");
+  }
 
+  const goCreateUser = (e) => {
+    e.preventDefault();
+    navigate("/components/CreateUserPage/CreateUser");
+  }
+*/}
   const loginHandleSubmit = async (e) => {
     e.preventDefault();
     
     validation('id', '', userID, setUserIDErrorMessage);
     validation('pwd', '', userPWD, setUserPWDErrorMessage);
+    if (userID == '' || userPWD == '')
+      return;
 
     const requestData = {
       "userID": userID,
       "userPWD": userPWD
     };
 
-    let url = 'http://localhost:8080/'+loginURL+'/doLogin';
+    let url = 'http://localhost:8080/'+userURL+'/doLogin';
     axios({
       method: "POST",
       url: url,
@@ -88,7 +99,7 @@ function Login(props) {
               onChange={(e) => setUserID(e.target.value)}
               onBlur={() => validation('id', '', userID, setUserIDErrorMessage)}
             />
-            <div className='validation'>{userIDErrorMessage}&nbsp;</div>
+            <div className='error-validation'>{userIDErrorMessage}&nbsp;</div>
             <input
               type="password"
               placeholder="비밀번호 입력"
@@ -96,7 +107,7 @@ function Login(props) {
               onChange={(e) => setUserPWD(e.target.value)}
               onBlur={() => validation('pwd', '', userPWD, setUserPWDErrorMessage)}
             />
-            <div className='validation'>{userPWDErrorMessage}&nbsp;</div>
+            <div className='error-validation'>{userPWDErrorMessage}&nbsp;</div>
             <button className="login" type="submit">로그인</button>
           </form>
           <br/>

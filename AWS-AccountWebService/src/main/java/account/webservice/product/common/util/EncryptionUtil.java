@@ -9,14 +9,10 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 
-@ConfigurationProperties(prefix = "SPRING.APP.API")
 public class EncryptionUtil {
 
-	private String ENCRYPTKEY;
+	private String ENCRYPTKEY = "duduck1234567890";
 	//private final SecretKey secretKey = createSecretKey();
 	
     public String EncryptSHA256(String inputStr) {
