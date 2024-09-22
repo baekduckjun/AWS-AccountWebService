@@ -6,8 +6,8 @@ import axios from "axios";
 import { initializeApp } from "firebase/app";
 import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
-import { validation } from 'Utile'; // utile.js 파일을 가져옴
-import { EncryptionUtil } from 'Utile'; // utile.js 파일을 가져옴
+import { Validation } from 'utils/Validation'; // utile.js 파일을 가져옴
+import { Cryption } from 'utils/Cryption'; // utile.js 파일을 가져옴
 
 // Firebase 설정 객체 (Firebase Console에서 복사한 설정 값 사용)
 const firebaseConfig = {
@@ -39,28 +39,32 @@ const backTransition = {
 function CreateUser(props) {
   const navigate = useNavigate();
   const [status, setStatus] = useState("step1");
-  const [userID, setUserID] = useState('');
-  const [userPWD, setUserPWD] = useState('');
-  const [userPWDConfirm, setUserPWDConfirm] = useState('');
-  const [userName, setUserName] = useState('');
-  const [userPhone, setUserPhone] = useState('');
-  const [userVerifyPhone, setUserVerifyPhone] = useState('');
-  const [userEmail, setUserEmail] = useState('');
-  const [userAlias, setUserAlias] = useState('');
+  const [userData, setUserData] = useState({
+    userID: '',
+    userPWD: '',
+    userPWDConfirm: '',
+    userName: '',
+    userPhone: '',
+    userVerifyPhone: '',
+    userEmail: '',
+    userAlias: ''
+  });
 
   {/** 밸리데이션 **/}
-  const [userIDErrorMessage, setUserIDErrorMessage] = useState('');
-  const [userPWDErrorMessage, setUserPWDErrorMessage] = useState('');
-  const [userPWDConfirmErrorMessage, setUserPWDConfirmErrorMessage] = useState('');
-  const [userNameErrorMessage, setUserNameErrorMessage] = useState('');
-  const [userPhoneErrorMessage, setUserPhoneErrorMessage] = useState('');
-  const [userEmailErrorMessage, setUserEmailErrorMessage] = useState('');
-  const [userAliasErrorMessage, setUserAliasErrorMessage] = useState('');
+  const [validationMessages, setValidationMessages] = useState({
+    userIDValidationMessage: '',
+    userPWDValidationMessage: '',
+    userPWDConfirmValidationMessage: '',
+    userNameValidationMessage: '',
+    userPhoneValidationMessage: '',
+    userEmailValidationMessage: '',
+    userAliasValidationMessage: '',
+  });
   {/** 밸리데이션 **/}
   
   let createUserContents = [];
-  let userURL = "api/v1/user";
 
+  const [preUserID, setPreUserID] = useState('');
   const [isVerifyID, setIsVerifyID] = useState(false);
   const [sendingPhone, setSendingPhone] = useState(false);
   const [checkingVerify, setCheckingVerify] = useState(false);
@@ -79,26 +83,25 @@ function CreateUser(props) {
   {/* 회원 가입 2SETP 가기 */}
   const goNextStep = (e) => {
     e.preventDefault();
-    if ("" == userID) {
-      validation('id', '', userID, setUserIDErrorMessage)
+
+    Validation(validationMessages, setValidationMessages, 'userID', '', userData.userID);
+    Validation(validationMessages, setValidationMessages, 'userPWD', '', userData.userPWD);
+    Validation(validationMessages, setValidationMessages, 'userPWDConfirm', '', userData.userPWD);
+    
+    if ( !(isVerifyID && preUserID == userData.userID) ) {
+      Validation(validationMessages, setValidationMessages, 'userVerifyID', '', userData.userID);
+    } else {
+      Validation(validationMessages, setValidationMessages, 'userVerifyID', 'available', userData.userID);
+    }
+
+    if (userData.userPWD != userData.userPWDConfirm) {
+      Validation(validationMessages, setValidationMessages, 'userPWDConfirm', 'notEuqal', userData.userPWD);
+    }
+
+    if ( ("" == userData.userID || !(isVerifyID && preUserID == userData.userID) || "" == userData.userPWD) || (userData.userPWD != userData.userPWDConfirm) ) {
       return;
     }
-    if (!isVerifyID) {
-      validation('verifyID', '', userID, setUserIDErrorMessage)
-      return;
-    }
-    if ("" == userPWD) {
-      validation('pwd', '', userPWD, setUserPWDErrorMessage)
-      return;
-    }
-    if ("" == userPWDConfirm) {
-      validation('pwdConfirm', '', '', setUserPWDConfirmErrorMessage)
-      return;
-    }
-    if (userPWD != userPWDConfirm) {
-      validation('pwdConfirm', '', 'notEuqal', setUserPWDConfirmErrorMessage)
-      return;
-    }
+
     setSendingPhone(false);
     setStatus('step2');
   }
@@ -107,19 +110,19 @@ function CreateUser(props) {
     e.preventDefault();
     setIsVerifyID(false);
 
-    if ("" == userID) {
-      validation('id', '', userID, setUserIDErrorMessage)
+    if ("" == userData.userID) {
+      Validation(validationMessages, setValidationMessages, 'userID', '', userData.userID);
       return;
     } 
 
-    const EncryptUserID = EncryptionUtil('encrypt', userID);
+    const EncryptUserID = Cryption('encrypt', userData.userID);
     const requestData = {
       "userID": EncryptUserID
     };
 
     axios({
       method: "POST",
-      url: 'http://localhost:8080/'+userURL+'/findbyid',
+      url: 'http://localhost:8080/'+process.env.REACT_APP_USER_URL+'/findbyid',
       data: requestData,
       headers: {'Content-type': 'application/json'}
     }).then((res)=>{
@@ -130,14 +133,15 @@ function CreateUser(props) {
       if ( resultMessage != 'Success') {
         if (resultMessage == 'Not Exsits') {
           setIsVerifyID(true);
-          validation('verifyID', 'available', userID, setUserIDErrorMessage);
+          setPreUserID(userData.userID);
+          Validation(validationMessages, setValidationMessages, 'userVerifyID', 'available', userData.userID);
         } else {
           setIsVerifyID(false);
           alert(resultMessage);
         }
       } else {
         setIsVerifyID(false);
-        validation('verifyID', 'exists', userID, setUserIDErrorMessage);
+        Validation(validationMessages, setValidationMessages, 'userVerifyID', 'exists', userData.userID);
       }
     }).catch(error=>{
         alert(error);
@@ -147,12 +151,12 @@ function CreateUser(props) {
   const senddingPhone = async (e) => {
     e.preventDefault();
 
-    if ("" == userPhone) {
+    if ("" == userData.userPhone) {
       alert('폰을 입력하세요');
       return;
     }
 
-    let checkPhone = "+82"+userPhone.substring(1); // +8210-1234-5678
+    let checkPhone = "+82"+userData.userPhone.substring(1); // +8210-1234-5678
 
     window.recaptchaVerifier = new RecaptchaVerifier(firebaseAuth, "recaptcha-container", {
       size: "invisible",
@@ -168,22 +172,22 @@ function CreateUser(props) {
         window.confirmationResult = confirmationResult;	// window
         setSendingPhone(true);
         setCheckingVerify(true);
-        validation('verifyPhone', 'sendding', userPhone, setUserPhoneErrorMessage);
+        Validation(validationMessages, setValidationMessages, 'userVerifyPhone', 'sendding', userData.userPhone);
       })
       .catch((error) => {
-        validation('verifyPhone', 'error', '', setUserPhoneErrorMessage);
+        Validation(validationMessages, setValidationMessages, 'userVerifyPhone', 'error', '',);
         alert("SMS SENDDING FAILED = "+error);
         window.recaptchaVerifier.clear();
       });
     
     const requestData = {
-      "userPhone": userPhone
+      "userPhone": userData.userPhone
     };
 
     /*
     axios({
       method: "POST",
-      url: 'http://localhost:8080/'+userURL+'/findByID',
+      url: 'http://localhost:8080/'+process.env.REACT_APP_USER_URL+'/findByID',
       data: requestData,
       // header에서 JSON 타입의 데이터라는 것을 명시
       headers: {'Content-type': 'application/json'}
@@ -203,17 +207,16 @@ function CreateUser(props) {
   }
 
   const verifyPhone = () => {
-    //const code = getCodeFromUserInput();
-    const code = userVerifyPhone;
+    const code = userData.userVerifyPhone;
     window.confirmationResult
       .confirm(code)
       .then((result) => {
-        validation('verifyPhone', 'available', userVerifyPhone, setUserPhoneErrorMessage);
+        Validation(validationMessages, setValidationMessages, 'userVerifyPhone', 'available', userData.userVerifyPhone);
         setIsVerifyPhone(true);
       })
       .catch((error) => {
         setCheckingVerify(false);
-        validation('verifyPhone', 'error', userVerifyPhone, setUserPhoneErrorMessage);
+        Validation(validationMessages, setValidationMessages, 'userVerifyPhone', 'error', userData.userVerifyPhone);
         alert("SMS VERIFYPHONE FAILED = "+error);
       });
   };
@@ -221,51 +224,39 @@ function CreateUser(props) {
   const createUserHandleSubmit = async (e) => {
     e.preventDefault();
 
-    const requestData = {
-      "userID": userID,
-      "userPWD": userPWD,
-      "userPWDConfirm": userPWDConfirm,
-      "userName": userName,
-      "userPhone": userPhone,
-      "userEmail": userEmail,
-      "userAlias": userAlias
-    };
-
-    if ("" == userID) {
-      validation('id', '', userID, setUserIDErrorMessage)
-      return;
-    } 
-    if ("" == userPWD) {
-      validation('pwd', '', userPWD, setUserPWDErrorMessage)
-      return;
-    } 
-    if ("" == userPWDConfirm) {
-      validation('pwdConfirm', '', userPWDConfirm, setUserPWDConfirmErrorMessage)
-    }
-    if ("" == userName) {
-      validation('name', '', userName, setUserNameErrorMessage)
-      return;
-    }
-    if ("" == userPhone) {
-      validation('phone', '', userPhone, setUserPhoneErrorMessage)
-      return;
-    }
+    Validation(validationMessages, setValidationMessages, 'userID', '', userData.userID);
+    Validation(validationMessages, setValidationMessages, 'userPWD', '', userData.userPWD);
+    Validation(validationMessages, setValidationMessages, 'userPWDConfirm', '', userData.userPWDConfirm);
+    Validation(validationMessages, setValidationMessages, 'userName', '', userData.userName);
+    Validation(validationMessages, setValidationMessages, 'userPhone', '', userData.userPhone);
+    Validation(validationMessages, setValidationMessages, 'userEmail', '', userData.userEmail);
+    Validation(validationMessages ,setValidationMessages, 'userAlias', '', userData.userAlias);
+    
     if (!isVerifyPhone) {
-      validation('verifyPhone', 'notVerifyPhone', userPhone, setUserPhoneErrorMessage)
-      return;
+      Validation(validationMessages, setValidationMessages, 'userVerifyPhone', 'notVerifyPhone', userData.userPhone);
+    } else {
+      Validation(validationMessages, setValidationMessages, 'userVerifyPhone', 'available', userData.userPhone);
     }
-    if ("" == userEmail) {
-      validation('email', '', userEmail, setUserEmailErrorMessage)
-      return;
+
+    if ( ("" == userData.userID || "" == userData.userPWD || "" == userData.userPWDConfirm || "" == userData.userName || 
+      "" == userData.userPhone || "" == userData.userEmail || "" == userData.userAlias) || !isVerifyPhone) {
+        return;
     }
-    if ("" == userAlias) {
-      validation('alias', '', userAlias, setUserAliasErrorMessage)
-      return;
-    } 
+
+    const requestData = {
+      "userID": userData.userID,
+      "userPWD": userData.userPWD,
+      "userPWDConfirm": userData.userPWDConfirm,
+      "userName": userData.userName,
+      "userPhone": userData.userPhone,
+      "userEmail": userData.userEmail,
+      "userAlias": userData.userAlias,
+      "userAccountLink": "normal",
+    };
 
     axios({
       method: "POST",
-      url: 'http://localhost:8080/'+userURL+'/create',
+      url: 'http://localhost:8080/'+process.env.REACT_APP_USER_URL+'/create',
       data: requestData,
       // header에서 JSON 타입의 데이터라는 것을 명시
       headers: {'Content-type': 'application/json'}
@@ -311,29 +302,33 @@ function CreateUser(props) {
               <input
                   type="text"
                   placeholder="✉ 사용자 아이디 또는 이메일 주소"
-                  value={userID}
-                  onChange={(e) => setUserID(e.target.value)}
-                  onBlur={() => validation('id', '', userID, setUserIDErrorMessage)}
+                  value={userData.userID}
+                  onChange={(e) => {
+                    setUserData({...userData, userID: e.target.value}); 
+                    setIsVerifyID(false);
+                    Validation(validationMessages, setValidationMessages, 'userVerifyID', '', userData.userID);
+                  }}
+                  onBlur={() => Validation(validationMessages, setValidationMessages, 'userID', '', userData.userID)}
               />
               <button type="button" className="verify-button" onClick={verifyID}>인증하기</button>
             </div>
-            <div className={isVerifyID ? 'info-validation' : 'error-validation'}>{userIDErrorMessage}&nbsp;</div>
+            <div className={(isVerifyID && preUserID == userData.userID) ? 'info-validation' : 'error-validation'}>{validationMessages.userIDValidationMessage}&nbsp;</div>
             <input
                 type="password"
                 placeholder="비밀번호"
-                value={userPWD}
-                onChange={(e) => setUserPWD(e.target.value)}
-                onBlur={() => validation('pwd', '', userPWD, setUserPWDErrorMessage)}
+                value={userData.userPWD}
+                onChange={(e) => setUserData({...userData, userPWD: e.target.value})}
+                onBlur={() => Validation(validationMessages, setValidationMessages, 'userPWD', '', userData.userPWD)}
             />
-            <div className='error-validation'>{userPWDErrorMessage}&nbsp;</div>
+            <div className='error-validation'>{validationMessages.userPWDValidationMessage}&nbsp;</div>
             <input
                 type="password"
                 placeholder="비밀번호 확인"
-                value={userPWDConfirm}
-                onChange={(e) => setUserPWDConfirm(e.target.value)}
-                onBlur={() => validation('pwdConfirm', userPWD, userPWDConfirm, setUserPWDConfirmErrorMessage)}
+                value={userData.userPWDConfirm}
+                onChange={(e) => setUserData({...userData, userPWDConfirm: e.target.value})}
+                onBlur={() => Validation(validationMessages, setValidationMessages, 'userPWDConfirm', userData.userPWD, userData.userPWDConfirm)}
             />
-            <div className='error-validation'>{userPWDConfirmErrorMessage}&nbsp;</div>
+            <div className='error-validation'>{validationMessages.userPWDConfirmValidationMessage}&nbsp;</div>
             <button className="signup" onClick={goNextStep}>다음 단계 (1/2)</button>
           </form>
         </div>
@@ -365,27 +360,27 @@ function CreateUser(props) {
             <input
               type="text"
               placeholder="이름 입력"
-              value={userName}
-              onChange={(e) => setUserName(e.target.value)}
-              onBlur={() => validation('name', '', userName, setUserNameErrorMessage)}
+              value={userData.userName}
+              onChange={(e) => setUserData({...userData, userName: e.target.value})}
+              onBlur={() => Validation(validationMessages, setValidationMessages, 'userName', '', userData.userName)}
             />
-            <div className='error-validation'>{userNameErrorMessage}&nbsp;</div>
+            <div className='error-validation'>{validationMessages.userNameValidationMessage}&nbsp;</div>
             <div className='input-id'>
               { !sendingPhone ? 
                 <input
                     type="text"
                     placeholder="전화번호 입력"
-                    value={userPhone}
-                    onChange={(e) => setUserPhone(e.target.value)}
-                    onBlur={() => validation('phone', '', userPhone, setUserPhoneErrorMessage)}
+                    value={userData.userPhone}
+                    onChange={(e) => setUserData({...userData, userPhone: e.target.value})}
+                    onBlur={() => Validation(validationMessages, setValidationMessages, 'userPhone', '', userData.userPhone)}
                 />
                 : 
                 <input
                 type="text"
                 placeholder="인증번호 입력"
-                value={userVerifyPhone}
-                onChange={(e) => setUserVerifyPhone(e.target.value)}
-                onBlur={() => validation('verifyPhone', 'error', userVerifyPhone, setUserPhoneErrorMessage)}
+                value={userData.userVerifyPhone}
+                onChange={(e) => setUserData({...userData, userVerifyPhone: e.target.value})}
+                onBlur={() => Validation(validationMessages, setValidationMessages, 'userVerifyPhone', 'error', userData.userVerifyPhone)}
             />
               }
               { !sendingPhone ? 
@@ -395,25 +390,25 @@ function CreateUser(props) {
               <div id="recaptcha-container"></div>
             </div>
             { !isVerifyPhone ? 
-              <div className={sendingPhone && checkingVerify ? 'info-validation' : 'error-validation'}>{userPhoneErrorMessage}&nbsp;</div>
-            : <div className='info-validation'>{userPhoneErrorMessage}&nbsp;</div>
+              <div className={sendingPhone && checkingVerify ? 'info-validation' : 'error-validation'}>{validationMessages.userPhoneValidationMessage}&nbsp;</div>
+            : <div className='info-validation'>{validationMessages.userPhoneValidationMessage}&nbsp;</div>
             }
             <input
               type="text"
               placeholder="이메일 주소 입력"
-              value={userEmail}
-              onChange={(e) => setUserEmail(e.target.value)}
-              onBlur={() => validation('email', '', userEmail, setUserEmailErrorMessage)}
+              value={userData.userEmail}
+              onChange={(e) => setUserData({...userData, userEmail: e.target.value})}
+              onBlur={() => Validation(validationMessages, setValidationMessages, 'userEmail', '', userData.userEmail)}
             />
-            <div className='error-validation'>{userEmailErrorMessage}&nbsp;</div>
+            <div className='error-validation'>{validationMessages.userEmailValidationMessage}&nbsp;</div>
             <input
               type="text"
               placeholder="별명 입력"
-              value={userAlias}
-              onChange={(e) => setUserAlias(e.target.value)}
-              onBlur={() => validation('alias', '', userAlias, setUserAliasErrorMessage)}
+              value={userData.userAlias}
+              onChange={(e) => setUserData({...userData, userAlias: e.target.value})}
+              onBlur={() => Validation(validationMessages, setValidationMessages, 'userAlias', '', userData.userAlias)}
             />
-            <div className='error-validation'>{userAliasErrorMessage}&nbsp;</div>
+            <div className='error-validation'>{validationMessages.userAliasValidationMessage}&nbsp;</div>
             <button className="signup" type="submit">회원 가입</button>
           </form>
         </div>

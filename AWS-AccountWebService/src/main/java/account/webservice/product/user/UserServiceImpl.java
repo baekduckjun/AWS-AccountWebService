@@ -5,13 +5,17 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import account.webservice.product.common.jwt.CustomUserDetails;
 import account.webservice.product.common.util.DateTimeUtil;
 import account.webservice.product.common.util.EncryptionUtil;
 
 @Service
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService, UserDetailsService{
 
     @Autowired
     private UserRepository userRepository;
@@ -46,19 +50,40 @@ public class UserServiceImpl implements UserService{
 				log.error("error = {}", e);
 			}
 	    	
-	    	UserEntity userEntity = UserEntity.builder()
-	    			.userKey(userKey)
-	    			.userID(userDTO.getUserID())
-	    			.userPWD(encryptUserPWD)
-	    			.userName(userDTO.getUserName())
-	    			.userEmail(userDTO.getUserEmail())
-	    			.userAlias(userDTO.getUserAlias())
-	    			.userType("member")
-	    			.regDate(regDate)
-	    			.isRegAccount("N")
-	    			.build();
+	    	UserEntity savedEntity = null;
+	    	if ("normal".equals(userDTO.getUserAccountLink())) {
+	    		UserEntity userEntity = UserEntity.builder()
+		    			.userKey(userKey)
+		    			.userID(userDTO.getUserID())
+		    			.userPWD(encryptUserPWD)
+		    			.userName(userDTO.getUserName())
+		    			.userEmail(userDTO.getUserEmail())
+		    			.userAlias(userDTO.getUserAlias())
+		    			.userType("member")
+		    			.regDate(regDate)
+		    			.userAccountLink("normal")
+		    			.isRegAccount("N")
+		    			.build();
+		    	
+		        savedEntity = userRepository.save(userEntity);
+	    		
+	    	} else if ("google".equals(userDTO.getUserAccountLink())) {
+	    		UserEntity userEntity = UserEntity.builder()
+		    			.userKey(userKey)
+		    			.userID(userDTO.getUserID())
+		    			.userPWD(encryptUserPWD)
+		    			.userName(userDTO.getUserName())
+		    			.userEmail(userDTO.getUserEmail())
+		    			.userAlias(userDTO.getUserAlias())
+		    			.userType("member")
+		    			.regDate(regDate)
+		    			.userAccountLink("google")
+		    			.isRegAccount("N")
+		    			.build();
+		    	
+		        savedEntity = userRepository.save(userEntity);
+	    	}
 	    	
-	        UserEntity savedEntity = userRepository.save(userEntity);
 	        
 	        if (savedEntity != null)
 	        	return "Success";
@@ -70,11 +95,33 @@ public class UserServiceImpl implements UserService{
     }
 
     public UserDTO findByUserID(String userID) {
-        Optional<UserEntity> memberEntityOptional = userRepository.findByUserID(userID);
+        Optional<UserEntity> userEntityOptional = userRepository.findByUserID(userID);
         
-        return memberEntityOptional.map(UserDTO::toUserDTO).orElse(null);
+        return userEntityOptional.map(UserDTO::toUserDTO).orElse(null);
     }
 
+	@Override
+	public UserDTO doLogin(UserDTO userDTO) {
+		String userID = userDTO.getUserID();
+		Optional<UserEntity> userEntityOptional = userRepository.findByUserID(userID);
+	        
+        return userEntityOptional.map(UserDTO::toUserDTO).orElse(null);
+	}
+
+	//jwt 인증 로그인
+	@Override
+	public UserDetails loadUserByUsername(String userID) throws UsernameNotFoundException {
+		
+		Optional<UserEntity> userData = userRepository.findByUserID(userID);
+
+        if (userData != null) {
+			//UserDetails에 담아서 return하면 AutneticationManager가 검증 함
+            return new CustomUserDetails(userData.get());
+        }
+
+		return null;
+	}
+    
     /*
     public UserDTO getMemberById(Long id) {
         Optional<UserEntity> memberEntityOptional = memberRepository.findById(id);

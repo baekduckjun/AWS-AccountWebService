@@ -33,6 +33,10 @@ dependencies {
 	implementation 'mysql:mysql-connector-java:8.0.28'
 	implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0' // javax.persistence 사용중인데 수상함..
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
+	implementation 'org.springframework.boot:spring-boot-starter-security' //jwt security
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'

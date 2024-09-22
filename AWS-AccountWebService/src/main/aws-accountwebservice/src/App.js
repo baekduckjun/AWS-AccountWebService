@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import 'App.css';
 import Login from 'components/LoginPage/Login';
 import CreateUser from 'components/CreateUserPage/CreateUser';
+import CreateUserAccountLink from 'components/CreateUserPage/CreateUserAccountLink';
 
 const nextTransition = {
   initial: { opacity: 0, x: 100 },   // 오른쪽에서 시작
@@ -52,6 +53,20 @@ function AnimatedRoutes() {
               variants={transition}
             >
               <CreateUser />
+            </motion.div>
+          }
+        />
+        {/* 연동 계정 추가 정보 */}
+        <Route
+          path="/components/CreateUserPage/CreateUserAccountLink"
+          element={
+            <motion.div
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              variants={transition}
+            >
+              <CreateUserAccountLink />
             </motion.div>
           }
         />

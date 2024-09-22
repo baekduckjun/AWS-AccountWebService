@@ -3,28 +3,27 @@ import 'components/LoginPage/Login.css';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-import { validation } from 'Utile'; // utile.js 파일을 가져옴
+import { Validation } from 'utils/Validation'; // utile.js 파일을 가져옴
+import { Cryption } from 'utils/Cryption'; // utile.js 파일을 가져옴
+
+import GoogleLoginComponent from 'components/LoginPage/GoogleLoginComponent';
 
 function Login(props) {
   const navigate = useNavigate();
   const [status, setStatus] = useState("login");
-  const [userID, setUserID] = useState('');
-  const [userPWD, setUserPWD] = useState('');
-  const [userName, setUserName] = useState('');
-  const [userEmail, setUserEmail] = useState('');
+  const [userData, setUserData] = useState({
+    userID: '',
+    userPWD: ''
+  });
 
   {/** 밸리데이션 **/}
-  const [userIDErrorMessage, setUserIDErrorMessage] = useState('');
-  const [userPWDErrorMessage, setUserPWDErrorMessage] = useState('');
+  const [validationMessages, setValidationMessages] = useState({
+    userIDValidationMessage: '',
+    userPWDValidationMessage: '',
+  });
   {/** 밸리데이션 **/}
   
   let loginContents = [];
-  let userURL = "api/v1/user";
-  const googleLoginUrl = 'https://accounts.google.com/o/oauth2/v2/auth?client_id='
-    + '246203568306-3m9pf28g5t23q4937o21b8obninr9us0.apps.googleusercontent.com'
-    + '&redirect_uri=https://baekduduck.duckdns.org'
-    + '&response_type=code'
-    + '&scope=email profile';
 
   const goCreateUser = (e) => {
     e.preventDefault();
@@ -42,17 +41,16 @@ function Login(props) {
   const loginHandleSubmit = async (e) => {
     e.preventDefault();
     
-    validation('id', '', userID, setUserIDErrorMessage);
-    validation('pwd', '', userPWD, setUserPWDErrorMessage);
-    if (userID == '' || userPWD == '')
+    Validation(validationMessages, setValidationMessages, 'userID', '', userData.userID);
+    Validation(validationMessages, setValidationMessages, 'userPWD', '', userData.userPWD);
+    if (userData.userID == '' || userData.userPWD == '')
       return;
-
+    
     const requestData = {
-      "userID": userID,
-      "userPWD": userPWD
+      userID : Cryption('encrypt', userData.userID),
+      userPWD : Cryption('encrypt', userData.userPWD),
     };
-
-    let url = 'http://localhost:8080/'+userURL+'/doLogin';
+    let url = 'http://localhost:8080/'+process.env.REACT_APP_USER_URL+'/dologin';
     axios({
       method: "POST",
       url: url,
@@ -67,10 +65,11 @@ function Login(props) {
       if (resultMessage != 'Success') {
         alert(resultMessage);
       } else {
+        alert(resultMessage);
         // API로 부터 받은 데이터 출력
         //setMemberID(resultData.memberID);
         //setMemberName(resultData.memberName);
-       // setMemberEmail(resultData.memberEmail);
+        //setMemberEmail(resultData.memberEmail);
         //setStatus('complelte');
       }
     }).catch(error=>{
@@ -78,11 +77,7 @@ function Login(props) {
     });
   }
 
-  const doGoogleLogin = () => {
-    window.location.href = googleLoginUrl;
-  };
-
-  if (status == 'login'){
+  if ("login" === status) {
     loginContents.push(
       <div class="login_container">
         <div className="logo">
@@ -93,24 +88,24 @@ function Login(props) {
             <input
               type="text"
               placeholder="✉ 사용자 아이디 또는 이메일 주소"
-              value={userID}
-              onChange={(e) => setUserID(e.target.value)}
-              onBlur={() => validation('id', '', userID, setUserIDErrorMessage)}
+              value={userData.userID}
+              onChange={(e) => setUserData({...userData, userID: e.target.value})}
+              onBlur={() => Validation(validationMessages, setValidationMessages, 'userID', '', userData.userID)}
             />
-            <div className='error-validation'>{userIDErrorMessage}&nbsp;</div>
+            <div className='error-validation'>{validationMessages.userIDValidationMessage}&nbsp;</div>
             <input
               type="password"
               placeholder="비밀번호 입력"
-              value={userPWD}
-              onChange={(e) => setUserPWD(e.target.value)}
-              onBlur={() => validation('pwd', '', userPWD, setUserPWDErrorMessage)}
+              value={userData.userPWD}
+              onChange={(e) => setUserData({...userData, userPWD: e.target.value})}
+              onBlur={() => Validation(validationMessages, setValidationMessages, 'userPWD', '', userData.userPWD)}
             />
-            <div className='error-validation'>{userPWDErrorMessage}&nbsp;</div>
+            <div className='error-validation'>{validationMessages.userPWDValidationMessage}&nbsp;</div>
             <button className="login" type="submit">로그인</button>
           </form>
           <br/>
           <div className="annotherLogin">
-            <img src="/loginGoogle.png" onClick={() => window.open('https://accounts.google.com/v3/signin/identifier?authuser=0&continue=https%3A%2F%2Fmyaccount.google.com%2F%3Fhl%3Dko%26utm_source%3DOGB%26utm_medium%3Dact&ec=GAlAwAE&hl=ko&service=accountsettings&flowName=GlifWebSignIn&flowEntry=AddSession&dsh=S-587032328%3A1720164582207694&ddm=0', '_blank')}></img>
+            <GoogleLoginComponent></GoogleLoginComponent>
             <img src="/loginKakao.webp" onClick={() => window.open('https://accounts.kakao.com/login/?continue=https%3A%2F%2Fcs.kakao.com%2F#login', '_blank')}></img>
             <img src="/loginNaver.png" onClick={() => window.open('https://accounts.kakao.com/login/?continue=https%3A%2F%2Fcs.kakao.com%2F#login', '_blank')}></img>
           </div>
@@ -125,11 +120,7 @@ function Login(props) {
     );
   }
 
-  return (
-  <div>
-    {loginContents}
-  </div>
-  );
+  return (<div>{loginContents}</div>);
 }
 
 export default Login;

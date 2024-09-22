@@ -23,6 +23,7 @@ public class UserDTO {
     private String userAlias;
     private String userType;
     private String regDate;
+    private String userAccountLink;
     private String isRegAccount;
 
     // getters and setters
@@ -39,6 +40,7 @@ public class UserDTO {
     	userDTO.setUserAlias(userEntity.getUserAlias());
     	userDTO.setUserType(userEntity.getUserType());
     	userDTO.setRegDate(userEntity.getRegDate());
+    	userDTO.setUserAccountLink(userEntity.getUserAccountLink());
     	userDTO.setIsRegAccount(userEntity.getIsRegAccount());
 
         return userDTO;
@@ -78,6 +80,10 @@ public class UserDTO {
 
 	public String getRegDate() {
 		return this.regDate;
+	}
+	
+	public String getUserAccountLink() {
+		return this.userAccountLink;
 	}
 
 	public String getIsRegAccount() {

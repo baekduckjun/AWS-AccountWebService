@@ -40,11 +40,14 @@ public class UserEntity {
     @Column(name = "regDate", nullable = false)
     private String regDate;
     
+    @Column(name = "userAccountLink")
+    private String userAccountLink;
+    
     @Column(name = "isRegAccount")
     private String isRegAccount;
 
 	@Builder
-    public UserEntity (String userKey, String userID, String userPWD, String userName, String userEmail, String userAlias, String userType, String regDate, String isRegAccount) {
+    public UserEntity (String userKey, String userID, String userPWD, String userName, String userEmail, String userAlias, String userType, String regDate, String userAccountLink, String isRegAccount) {
     	this.userKey = userKey;
     	this.userID = userID;
     	this.userPWD = userPWD;
@@ -53,6 +56,7 @@ public class UserEntity {
     	this.userAlias = userAlias;
     	this.userType = userType;
     	this.regDate = regDate;
+    	this.userAccountLink = userAccountLink;
     	this.isRegAccount = isRegAccount;
     }
 
@@ -87,7 +91,7 @@ public class UserEntity {
 	public String getRegDate() {
 		return this.regDate;
 	}
-
+	
 	public String getIsRegAccount() {
 		return this.isRegAccount;
 	}

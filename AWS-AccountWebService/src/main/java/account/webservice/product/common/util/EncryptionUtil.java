@@ -3,19 +3,27 @@ package account.webservice.product.common.util;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
+import java.util.regex.Pattern;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 
-public class EncryptionUtil {
+@Component
+public class EncryptionUtil implements PasswordEncoder{
 
-	private String ENCRYPTKEY = "duduck1234567890";
-	//private final SecretKey secretKey = createSecretKey();
+	@Value("${SPRING.APP.API.ENCRYPTKEY}")
+	private String ENCRYPTKEY;
 	
-    public String EncryptSHA256(String inputStr) {
+	public EncryptionUtil() {
+	}
+	
+	public String EncryptSHA256(String inputStr) {
     	String encryptStr = inputStr+ENCRYPTKEY;
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
@@ -63,4 +71,23 @@ public class EncryptionUtil {
         byte[] decodedBytes = Base64.getDecoder().decode(inputStr);
         return new String(cipher.doFinal(decodedBytes), "UTF-8");
     }
+
+    //jwt 관련하여 암호화 함수
+	@Override
+	public String encode(CharSequence rawPassword) {
+		String inputStr = rawPassword.toString();
+		return EncryptSHA256(inputStr);
+	}
+
+	//jwt 관련하여 암호화 함수
+	@Override
+	public boolean matches(CharSequence rawPassword, String encodedPassword) {
+		if (rawPassword == null) {
+			throw new IllegalArgumentException("rawPassword cannot be null");
+		}
+		if (encodedPassword == null || encodedPassword.length() == 0) {
+			return false;
+		}
+		return rawPassword.equals(encodedPassword);
+	}
 }
