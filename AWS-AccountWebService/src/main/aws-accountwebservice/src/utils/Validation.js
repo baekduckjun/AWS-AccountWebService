@@ -47,7 +47,7 @@ export const Validation = (validationMessages, setValidationMessage, type, type2
     }
   } else if (type === 'userVerifyPhone') {
     if (value.trim() === "") {
-      setValidationMessage(validationMessages => ({...validationMessages, userPhoneValidationMessage: '전화번호가 잘못되었습니다.'}));
+      setValidationMessage(validationMessages => ({...validationMessages, userPhoneValidationMessage: '전화번호를 입력하세요.'}));
     } else {
       if (type2 === 'sendding') {
         setValidationMessage(validationMessages => ({...validationMessages, userPhoneValidationMessage: '전송되었습니다.'}));

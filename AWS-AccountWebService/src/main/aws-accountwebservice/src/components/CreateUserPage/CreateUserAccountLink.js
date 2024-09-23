@@ -90,7 +90,7 @@ function CreateUserAccountLink(props) {
         window.confirmationResult = confirmationResult;	// window
         setSendingPhone(true);
         setCheckingVerify(true);
-        Validation(validationMessages, setValidationMessages, 'userVerifyPhone', 'sendding');
+        Validation(validationMessages, setValidationMessages, 'userVerifyPhone', 'sendding', userData.userPhone);
       })
       .catch((error) => {
         Validation(validationMessages, setValidationMessages, 'userVerifyPhone', 'error', '');

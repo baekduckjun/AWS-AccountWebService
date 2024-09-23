@@ -14,7 +14,6 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-@Component
 public class EncryptionUtil implements PasswordEncoder{
 
 	@Value("${SPRING.APP.API.ENCRYPTKEY}")

@@ -11,8 +11,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import account.webservice.product.common.jwt.filter.JWTFilter;
 import account.webservice.product.common.jwt.filter.LoginFilter;
 import account.webservice.product.common.util.EncryptionUtil;
+import account.webservice.product.common.util.JWTUtil;
 
 @Configuration
 @EnableWebSecurity
@@ -20,9 +22,13 @@ public class SecurityConfig {
 	
 	//AuthenticationManager가 인자로 받을 AuthenticationConfiguraion 객체 생성자 주입
 	private final AuthenticationConfiguration authenticationConfiguration;
-	public SecurityConfig(AuthenticationConfiguration authenticationConfiguration) {
-
+	
+	//JWTUtil 주입
+	private final JWTUtil jwtUtil;
+	
+	public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil) {
         this.authenticationConfiguration = authenticationConfiguration;
+        this.jwtUtil = jwtUtil;
     }
 	
 	@Bean
@@ -58,8 +64,12 @@ public class SecurityConfig {
 				.requestMatchers("/api/v1/user/admin").hasRole("ADMIN")
 				.anyRequest().authenticated());
 		
-		LoginFilter loginFilter = new LoginFilter(authenticationManager(authenticationConfiguration));
+		LoginFilter loginFilter = new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil);
 		loginFilter.setFilterProcessesUrl("/api/v1/user/dologin");
+		
+		//JWTFilter 등록
+        http
+            .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
 		
 		http
 			.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
