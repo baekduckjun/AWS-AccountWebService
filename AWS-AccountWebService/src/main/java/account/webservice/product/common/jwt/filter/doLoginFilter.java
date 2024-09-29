@@ -3,9 +3,11 @@ package account.webservice.product.common.jwt.filter;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,25 +19,28 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import account.webservice.product.common.jwt.CustomUserDetails;
+import account.webservice.product.common.jwt.JWTRefreshEntity;
+import account.webservice.product.common.jwt.JWTRefreshRepository;
+import account.webservice.product.common.jwt.JWTUtil;
 import account.webservice.product.common.util.EncryptionUtil;
-import account.webservice.product.common.util.JWTUtil;
 import account.webservice.product.user.UserDTO;
 import account.webservice.product.user.UserEntity;
 import account.webservice.product.user.UserService;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-public class LoginFilter extends UsernamePasswordAuthenticationFilter {
+public class doLoginFilter extends UsernamePasswordAuthenticationFilter {
 
-    private final AuthenticationManager authenticationManager;
-    
-    //JWTUtil 주입
-	private final JWTUtil jwtUtil;
+    private final AuthenticationManager authenticationManager; //AuthenticationManager 주입
+	private final JWTUtil jwtUtil; //JWTUtil 주입
+	private final JWTRefreshRepository jwtRefreshRepository; //JWTRefreshRepository 주입
 
-    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
+    public doLoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, JWTRefreshRepository jwtRefreshRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.jwtRefreshRepository = jwtRefreshRepository;
     }
     
     @Autowired
@@ -74,7 +79,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
 	//로그인 성공시 실행하는 메소드 (여기서 JWT를 발급하면 됨)
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) throws IOException {
 		
     	//UserDetailsS
         CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
@@ -84,12 +89,38 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
         Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
         GrantedAuthority auth = iterator.next();
-
         String role = auth.getAuthority();
 
-        String token = jwtUtil.createJwt(userID, role, 60*60*10L);
+        //토큰 생성
+        String access = jwtUtil.createJwt("access", userID, role, 600000L);
+        String refresh = jwtUtil.createJwt("refresh", userID, role, 86400000L);
+        
+        //Refresh 토큰 저장
+        addRefreshEntity(userID, refresh, 86400000L);
 
-        response.addHeader("Authorization", "Bearer " + token);
+        //응답 설정
+        response.setHeader("access", access);
+        response.addCookie(jwtUtil.createCookie("refresh", refresh));
+        
+        // 응답 body에 데이터 작성
+        String responseBody = "{\"result\": \"Success\"}";
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+		response.getWriter().write(responseBody);
+		
+        response.setStatus(HttpStatus.OK.value());
+    }
+    
+    private void addRefreshEntity(String userID, String refresh, Long expiredMs) {
+
+        Date date = new Date(System.currentTimeMillis() + expiredMs);
+
+        JWTRefreshEntity refreshEntity = new JWTRefreshEntity();
+        refreshEntity.setUserID(userID);
+        refreshEntity.setRefresh(refresh);
+        refreshEntity.setExpiration(date.toString());
+
+        jwtRefreshRepository.save(refreshEntity);
     }
 
 	//로그인 실패시 실행하는 메소드

@@ -6,6 +6,8 @@ import 'App.css';
 import Login from 'components/LoginPage/Login';
 import CreateUser from 'components/CreateUserPage/CreateUser';
 import CreateUserAccountLink from 'components/CreateUserPage/CreateUserAccountLink';
+import {JWTAuthRoute} from 'utils/JWTAuthRoute'; // utile.js 파일을 가져옴
+import Main from 'components/MainPage/Main';
 
 const nextTransition = {
   initial: { opacity: 0, x: 100 },   // 오른쪽에서 시작
@@ -28,7 +30,7 @@ function AnimatedRoutes() {
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.key}>
-        {/* 메인 페이지 */}
+        {/* 로그인 페이지 */}
         <Route
           path="/"
           element={
@@ -81,6 +83,22 @@ function AnimatedRoutes() {
               variants={transition}
             >
               <CreateUser />
+            </motion.div>
+          }
+        />
+        {/* 로그인 후 메인 페이지 */}
+        <Route
+          path="/components/MainPage/Main"
+          element={
+            <motion.div
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              variants={transition}
+            >
+              <JWTAuthRoute>
+                <Main />
+              </JWTAuthRoute>
             </motion.div>
           }
         />

@@ -1,5 +1,8 @@
 package account.webservice.product.common.jwt;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,11 +13,15 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 import account.webservice.product.common.jwt.filter.JWTFilter;
-import account.webservice.product.common.jwt.filter.LoginFilter;
+import account.webservice.product.common.jwt.filter.doLoginFilter;
+import account.webservice.product.common.jwt.filter.doLogoutFilter;
 import account.webservice.product.common.util.EncryptionUtil;
-import account.webservice.product.common.util.JWTUtil;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Configuration
 @EnableWebSecurity
@@ -22,13 +29,13 @@ public class SecurityConfig {
 	
 	//AuthenticationManager가 인자로 받을 AuthenticationConfiguraion 객체 생성자 주입
 	private final AuthenticationConfiguration authenticationConfiguration;
+	private final JWTUtil jwtUtil; //JWTUtil 주입
+	private final JWTRefreshRepository jwtRefreshRepository; //JWTRefreshRepository 주입
 	
-	//JWTUtil 주입
-	private final JWTUtil jwtUtil;
-	
-	public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil) {
+	public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, JWTRefreshRepository jwtRefreshRepository) {
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtUtil = jwtUtil;
+        this.jwtRefreshRepository = jwtRefreshRepository;
     }
 	
 	@Bean
@@ -39,12 +46,30 @@ public class SecurityConfig {
 	//AuthenticationManager Bean 등록
 	@Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-
         return configuration.getAuthenticationManager();
     }
 	
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		
+		http
+			.cors((corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
+        			
+    			@Override
+    			public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+    				CorsConfiguration configuration = new CorsConfiguration();
+
+                    configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://baekduduck.duckdns.org"));
+                    configuration.setAllowedMethods(Collections.singletonList("*"));
+                    configuration.setAllowCredentials(true);
+                    configuration.setAllowedHeaders(Collections.singletonList("*"));
+                    configuration.setMaxAge(3600L);
+
+					configuration.setExposedHeaders(Collections.singletonList("Access"));
+
+                    return configuration;
+    			}
+    		})));
 		
 		// csrf disable
 		http
@@ -61,18 +86,25 @@ public class SecurityConfig {
 		http
 			.authorizeRequests((auth) -> auth 
 				.requestMatchers("/api/v1/user/create", "/api/v1/user/findbyid", "/api/v1/user/dologin").permitAll()
+				.requestMatchers("/api/v1/jwtrefresh").permitAll()
 				.requestMatchers("/api/v1/user/admin").hasRole("ADMIN")
 				.anyRequest().authenticated());
 		
-		LoginFilter loginFilter = new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil);
+		doLoginFilter loginFilter = new doLoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, jwtRefreshRepository);
 		loginFilter.setFilterProcessesUrl("/api/v1/user/dologin");
+		
+		String logoutURL = "/api/v1/user/dologout";
+		doLogoutFilter logoutFilter = new doLogoutFilter(jwtUtil, jwtRefreshRepository, logoutURL);
 		
 		//JWTFilter 등록
         http
-            .addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class);
-		
+            .addFilterBefore(new JWTFilter(jwtUtil), doLoginFilter.class);
+        
 		http
 			.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
+		
+		http
+        	.addFilterBefore(logoutFilter, LogoutFilter.class);
 		
 		// 세션 설정
 		http

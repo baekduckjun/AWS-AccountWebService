@@ -51,7 +51,7 @@ function Login(props) {
       userPWD : Cryption('encrypt', userData.userPWD),
     };
     let url = 'http://localhost:8080/'+process.env.REACT_APP_USER_URL+'/dologin';
-    axios({
+    await axios({
       method: "POST",
       url: url,
       data: requestData,
@@ -65,7 +65,11 @@ function Login(props) {
       if (resultMessage != 'Success') {
         alert(resultMessage);
       } else {
-        alert(resultMessage);
+        const accessToken = res.headers.get('Access');
+        if (accessToken) {
+          localStorage.setItem('accessToken', accessToken);
+        }
+        navigate("/components/MainPage/Main");
         // API로 부터 받은 데이터 출력
         //setMemberID(resultData.memberID);
         //setMemberName(resultData.memberName);
