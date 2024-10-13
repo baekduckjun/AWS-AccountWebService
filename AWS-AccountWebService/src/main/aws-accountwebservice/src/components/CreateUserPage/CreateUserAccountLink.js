@@ -1,28 +1,12 @@
-import React, { Component, useState, useEffect } from 'react';
+import React, { Component, useState, useEffect, useRef } from 'react';
 import 'components/CreateUserPage/CreateUser.css';
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from "axios";
-import { initializeApp } from "firebase/app";
-import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
+import VerifyPhonePopup from 'components/PopupPage/VerifyPhonePopup';
 
 import { Validation } from 'utils/Validation'; // utile.js 파일을 가져옴
 import { Cryption } from 'utils/Cryption'; // utile.js 파일을 가져옴
-
-// Firebase 설정 객체 (Firebase Console에서 복사한 설정 값 사용)
-const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_API_AUTHDOMAIN,
-  projectId: process.env.REACT_APP_FIREBASE_API_PROJECTID,
-  storageBucket: process.env.REACT_APP_FIREBASE_API_STORAGEBUCKET,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_API_MESSAGINGSENDERID,
-  appId: process.env.REACT_APP_FIREBASE_API_APPID,
-};
-
-// Initialize Firebase
-const firebaseApp = initializeApp(firebaseConfig);
-// Initialize Firebase Authentication and get a reference to the service
-const firebaseAuth = getAuth(firebaseApp);
 
 function CreateUserAccountLink(props) {
   const navigate = useNavigate();
@@ -66,79 +50,60 @@ function CreateUserAccountLink(props) {
     navigate("/", { state: { isBack: true } });
   }
 
-  const senddingPhone = async (e) => {
-    e.preventDefault();
+  {/** 휴대폰 인증 팝업 **/}
+  const [isVerifyPhonePopupOpen, setIsVerifyPhonePopupOpen] = useState(false);
+  const [isVerifyPhonePopupClosing, setIsVerifyPhonePopupClosing] = useState(false);
 
-    if ("" == userData.userPhone) {
-      alert('폰을 입력하세요');
-      return;
+  const VerifyPhonePopupOpen = () => {
+    setIsVerifyPhonePopupOpen(true);
+    setIsVerifyPhonePopupClosing(false);
+  };
+
+  const VerifyPhonePopupClose = () => {
+    setIsVerifyPhonePopupClosing(true); // 애니메이션 상태 활성화
+    setTimeout(() => {
+      setIsVerifyPhonePopupOpen(false); // 애니메이션 후 팝업 닫기
+    }, 300); // 애니메이션 시간
+  };
+
+  const popupRef = useRef(null);
+  // 콜백 함수 정의
+  const getPopupRef = (ref) => {
+    if (ref) {
+      popupRef.current = ref; // ref가 유효할 때만 설정
+    }
+  };
+
+  useEffect(() => {
+    // 팝업 외부 클릭 감지 함수
+    const handleClickOutside = (event) => {
+      if (isVerifyPhonePopupOpen && popupRef.current && !popupRef.current.contains(event.target)) {
+        setIsVerifyPhonePopupClosing(true); // 애니메이션 상태 활성화
+        setTimeout(() => {
+          setIsVerifyPhonePopupOpen(false); // 애니메이션 후 팝업 닫기
+        }, 300); // 애니메이션 시간
+      }
+    };
+    
+    if (isVerifyPhonePopupOpen){
+      document.body.classList.remove('scrollHidden');
+      // 클릭 이벤트 리스너 추가
+      document.addEventListener("mousedown", handleClickOutside);
+    }else{
+      document.body.classList.add('scrollHidden');
+      document.removeEventListener('mousedown', handleClickOutside);
     }
 
-    let checkPhone = "+82"+userData.userPhone.substring(1); // +8210-1234-5678
+    if (isVerifyPhone) {
+      Validation(validationMessages, setValidationMessages, 'userVerifyPhone', 'available', userData.userPhone);
+    }
 
-    window.recaptchaVerifier = new RecaptchaVerifier(firebaseAuth, "recaptcha-container", {
-      size: "invisible",
-      callback: (response) => {
-        // reCAPTCHA solved, allow signInWithPhoneNumber.
-      },
-    });
-    
-    firebaseAuth.languageCode = "ko";
-    const appVerifier = window.recaptchaVerifier;
-    signInWithPhoneNumber(firebaseAuth, checkPhone, appVerifier)
-      .then((confirmationResult) => {
-        window.confirmationResult = confirmationResult;	// window
-        setSendingPhone(true);
-        setCheckingVerify(true);
-        Validation(validationMessages, setValidationMessages, 'userVerifyPhone', 'sendding', userData.userPhone);
-      })
-      .catch((error) => {
-        Validation(validationMessages, setValidationMessages, 'userVerifyPhone', 'error', '');
-        alert("SMS SENDDING FAILED = "+error);
-        window.recaptchaVerifier.clear();
-      });
-    
-    const requestData = {
-      "userPhone": userData.userPhone
+    // 컴포넌트 언마운트 시 이벤트 리스너 제거
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
     };
-
-    /*
-    axios({
-      method: "POST",
-      url: 'http://localhost:8080/'+process.env.REACT_APP_USER_URL+'/findbyid',
-      data: requestData,
-      // header에서 JSON 타입의 데이터라는 것을 명시
-      headers: {'Content-type': 'application/json'}
-    }).then((res)=>{
-      let result = res.data;
-      let resultMessage = result.result;
-      let resultData = result.data;
-      if ( resultMessage != 'Success') {
-        alert(resultMessage);
-      } else {
-        // API로 부터 받은 데이터 출력
-      }
-    }).catch(error=>{
-        alert(error);
-    });
-    */
-  }
-
-  const verifyPhone = () => {
-    //const code = getCodeFromUserInput();
-    const code = userData.userVerifyPhone;
-    window.confirmationResult
-      .confirm(code)
-      .then((result) => {
-        Validation(validationMessages, setValidationMessages, 'userVerifyPhone', 'available', userData.userVerifyPhone);
-        setIsVerifyPhone(true);
-      })
-      .catch((error) => {
-        setCheckingVerify(false);
-        Validation(validationMessages, setValidationMessages, 'userVerifyPhone', 'error', userData.userVerifyPhone);
-        alert("SMS VERIFYPHONE FAILED = "+error);
-      });
-  };
+  }, [isVerifyPhonePopupOpen]);
+  {/** 휴대폰 인증 팝업 **/}
 
   const createUserHandleSubmit = async (e) => {
     e.preventDefault();
@@ -175,7 +140,7 @@ function CreateUserAccountLink(props) {
 
     axios({
       method: "POST",
-      url: 'http://localhost:8080/'+process.env.REACT_APP_USER_URL+'/create',
+      url: process.env.REACT_APP_DOMAIN + process.env.REACT_APP_USER_URL+'/create',
       data: requestData,
       // header에서 JSON 타입의 데이터라는 것을 명시
       headers: {'Content-type': 'application/json'}
@@ -215,52 +180,43 @@ function CreateUserAccountLink(props) {
         <div className="logo">
           <img src="/loginLogo.jpg" alt="logo"></img>
         </div>
-        <form onSubmit={createUserHandleSubmit}>
-          <div className='input-id'>
-            { !sendingPhone ? 
-              <input
-                  type="text"
-                  placeholder="전화번호 입력"
-                  value={userData.userPhone}
-                  onChange={(e) => setUserData({...userData, userPhone: e.target.value})}
-                  onBlur={() => Validation(validationMessages ,setValidationMessages, 'userPhone', '', userData.userPhone)}
-              />
-              : 
-              <input
+        <div className='input-id'>
+          <input
               type="text"
-              placeholder="인증번호 입력"
-              value={userData.userVerifyPhone}
-              onChange={(e) => setUserData({...userData, userVerifyPhone: e.target.value})}
-                onBlur={() => Validation(validationMessages ,setValidationMessages, 'userVerifyPhone', 'error', userData.userVerifyPhone)}
-            />
-              }
-              { !sendingPhone ? 
-                <button type="button" className="verify-button" onClick={senddingPhone}>전송하기</button> 
-              : <button type="button" className="verify-button" onClick={verifyPhone}>인증하기</button>
-              }
-              <div id="recaptcha-container"></div>
-            </div>
-            { !isVerifyPhone ? 
-              <div className={sendingPhone && checkingVerify ? 'info-validation' : 'error-validation'}>{validationMessages.userPhoneValidationMessage}&nbsp;</div>
-            : <div className='info-validation'>{validationMessages.userPhoneValidationMessage}&nbsp;</div>
-            }
-            <input
-              type="text"
-              placeholder="별명 입력"
-              value={userData.userAlias}
-              onChange={(e) => setUserData({...userData, userAlias: e.target.value})}
-              onBlur={() => Validation(validationMessages ,setValidationMessages, 'userAlias', '', userData.userAlias)}
-            />
-            <div className='error-validation'>{validationMessages.userAliasValidationMessage}&nbsp;</div>
-            <button className="signup" type="submit">추가 정보</button>
-          </form>
+              value={userData.userPhone}
+              disabled
+          />
+          <button onClick={VerifyPhonePopupOpen}>휴대폰 인증하기</button>
         </div>
+        <div className={isVerifyPhone ? 'info-validation' : 'error-validation'}>{validationMessages.userPhoneValidationMessage}&nbsp;</div>
+        <input
+          type="text"
+          placeholder="별명 입력"
+          value={userData.userAlias}
+          onChange={(e) => setUserData({...userData, userAlias: e.target.value})}
+          onBlur={() => Validation(validationMessages ,setValidationMessages, 'userAlias', '', userData.userAlias)}
+        />
+        <div className='error-validation'>{validationMessages.userAliasValidationMessage}&nbsp;</div>
+        <button className="signup" onClick={createUserHandleSubmit}>추가 정보</button>
       </div>
+    </div>
     );
 
   return (
     <div>
       {createUserContents}
+      {isVerifyPhonePopupOpen && (
+        <VerifyPhonePopup
+          isOpen={isVerifyPhonePopupOpen}
+          onClose={VerifyPhonePopupClose}
+          getRef = {getPopupRef}
+          isVerifyPhonePopupClosing = {isVerifyPhonePopupClosing}
+          userData = {userData}
+          setUserData = {setUserData}
+          isVerifyPhone = {isVerifyPhone}
+          setIsVerifyPhone = {setIsVerifyPhone}
+        />
+      )}
     </div>
   );
 }

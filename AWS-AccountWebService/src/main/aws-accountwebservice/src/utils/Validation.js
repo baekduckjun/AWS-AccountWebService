@@ -41,20 +41,20 @@ export const Validation = (validationMessages, setValidationMessage, type, type2
     }
   } else if (type === 'userPhone') {
     if (value.trim() === "") {
-      setValidationMessage(validationMessages => ({...validationMessages, userPhoneValidationMessage: '전화번호를 입력하세요'}));
+      setValidationMessage(validationMessages => ({...validationMessages, userPhoneValidationMessage: '휴대폰 인증을 진행 해주세요.'}));
     } else {
       setValidationMessage(validationMessages => ({...validationMessages, userPhoneValidationMessage: ''}));
     }
   } else if (type === 'userVerifyPhone') {
     if (value.trim() === "") {
-      setValidationMessage(validationMessages => ({...validationMessages, userPhoneValidationMessage: '전화번호를 입력하세요.'}));
+      setValidationMessage(validationMessages => ({...validationMessages, userPhoneValidationMessage: '휴대폰 인증을 진행 해주세요.'}));
     } else {
       if (type2 === 'sendding') {
         setValidationMessage(validationMessages => ({...validationMessages, userPhoneValidationMessage: '전송되었습니다.'}));
       } else if (type2 === 'available') {
         setValidationMessage(validationMessages => ({...validationMessages, userPhoneValidationMessage: '인증되었습니다.'}));
       } else if (type2 === 'error') {
-        setValidationMessage(validationMessages => ({...validationMessages, userPhoneValidationMessage: '인증번호가 잘못되었습니다.'}));
+        setValidationMessage(validationMessages => ({...validationMessages, userVerifyPhoneValidationMessage: '인증번호가 잘못되었습니다.'}));
       } else if (type2 === 'notVerifyPhone'){
         setValidationMessage(validationMessages => ({...validationMessages, userPhoneValidationMessage: '핸드폰 인증을 진행하세요'}));
       } else {

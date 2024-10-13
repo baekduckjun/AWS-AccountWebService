@@ -1,0 +1,102 @@
+@charset "UTF-8";
+
+.verify-phone-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5); /* 배경을 반투명하게 */
+  z-index: 999; /* 팝업이 다른 요소 위에 나타나도록 설정 */
+}
+
+/* 팝업 등장 애니메이션 */
+@keyframes popup-appear {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* 팝업 닫힘 애니메이션 */
+@keyframes popup-disappear {
+  from {
+    transform: scale(1);
+    opacity: 1;
+  }
+  to {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+}
+
+.show {
+  animation: popup-appear 0.3s forwards; /* 등장 애니메이션 */
+}
+
+.hide {
+  animation: popup-disappear 0.3s forwards; /* 닫힘 애니메이션 */
+}
+
+.verify-phone-popup .popup-content {
+  background-color: white;
+  padding: 1.5vw 2vw; /* 비율로 패딩 설정 */
+  border-radius: 2vw; /* 비율로 테두리 반경 설정 */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  width: 80vw; /* 전체 뷰포트 너비의 80% */
+  max-width: 400px; /* 최대 너비 설정 */
+  text-align: center;
+}
+
+.input-phonenumber {
+  display: flex; /* 수평 레이아웃을 위해 flexbox 사용 */
+  align-items: center; /* 수직 정렬을 중앙에 맞춤 */
+  gap: 1vw; /* 입력 필드와 버튼 사이의 간격을 비율로 설정 */
+}
+
+.input-verifycode {
+  display: flex;
+  align-items: center;
+  gap: 1vw; /* 입력 필드와 남은 시간 사이의 간격 조절 */
+}
+
+.input-verifycode input {
+  flex: 1; /* 입력 필드가 가능한 넓게 확장되도록 설정 */
+}
+
+.input-verifycode p {
+  margin: 0;
+  white-space: nowrap; /* 텍스트가 줄 바꿈되지 않도록 설정 */
+}
+
+/* 버튼 스타일 */
+.verify-phone-popup button {
+  margin-top: 1vw; /* 비율로 마진 설정 */
+  padding: 1vw 2vw; /* 비율로 패딩 설정 */
+  border: none;
+  background-color: #007BFF;
+  color: white;
+  border-radius: 0.5vw; /* 비율로 테두리 반경 설정 */
+  cursor: pointer;
+}
+
+.verify-phone-popup button:hover {
+  background-color: #0056b3;
+}
+
+/* 인증 입력 폼 스타일 */
+.verify-phone-popup input {
+  width: calc(100% - 20px);
+  margin-bottom: 1vw; /* 비율로 마진 설정 */
+  padding: 1vw 1.5vw; /* 비율로 패딩 설정 */
+  border: 1px solid #ccc;
+  border-radius: 0.5vw; /* 비율로 테두리 반경 설정 */
+  box-sizing: border-box;
+}

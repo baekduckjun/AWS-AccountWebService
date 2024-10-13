@@ -50,7 +50,7 @@ function Login(props) {
       userID : Cryption('encrypt', userData.userID),
       userPWD : Cryption('encrypt', userData.userPWD),
     };
-    let url = 'http://localhost:8080/'+process.env.REACT_APP_USER_URL+'/dologin';
+    let url = process.env.REACT_APP_DOMAIN + process.env.REACT_APP_USER_URL+'/dologin';
     await axios({
       method: "POST",
       url: url,

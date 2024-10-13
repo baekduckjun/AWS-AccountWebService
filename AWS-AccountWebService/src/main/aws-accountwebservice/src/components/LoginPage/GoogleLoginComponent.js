@@ -48,7 +48,7 @@ function GoogleCreateUser(data) {
         try {
             const res = await axios({
                 method: "POST",
-                url: 'http://localhost:8080/' + process.env.REACT_APP_USER_URL + '/findbyid',
+                url: process.env.REACT_APP_DOMAIN + process.env.REACT_APP_USER_URL + '/findbyid',
                 data: requestData,
                 headers: { 'Content-type': 'application/json' }
             });
@@ -82,7 +82,7 @@ function doLogin(data) {
         userPWD : Cryption('encrypt', data.userPWD),
     };
 
-    let url = 'http://localhost:8080/'+process.env.REACT_APP_USER_URL+'/dologin';
+    let url = process.env.REACT_APP_DOMAIN + process.env.REACT_APP_USER_URL+'/dologin';
 
     const login = async () => {
         try {
@@ -128,6 +128,7 @@ function GoogleLoginComponent(props) {
         <GoogleOAuthProvider clientId={googleConfig.clientID}>
             <GoogleLogin
                 onSuccess={async (res) => {
+                    debugger;
                     let googleResult = jwtDecode(res.credential);
                     const createGoogleUserResult = await GoogleCreateUser(googleResult); // GoogleCreateUser가 완료될 때까지 기다림
                     if (createGoogleUserResult == "Create") {
