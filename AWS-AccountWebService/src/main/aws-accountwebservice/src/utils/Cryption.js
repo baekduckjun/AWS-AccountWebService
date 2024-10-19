@@ -19,11 +19,6 @@ export const Cryption = (type, value) => {
     return encrypted.toString();
   };
 
-  // URL 인코딩 함수
-  const urlEncode = (text) => {
-    return encodeURIComponent(text);
-  };
-
   // AES 복호화 함수
   const decryptText = (text) => {
     const key = getKey(ENCRYPTKEY);
@@ -34,34 +29,26 @@ export const Cryption = (type, value) => {
     return CryptoJS.enc.Utf8.stringify(decrypted);
   };
 
-  // URL 디코딩 함수
-  const urlDecode = (text) => {
-    return decodeURIComponent(text);
+  const processCryption = (data) => {
+    const cryptionData = {};
+    Object.keys(data).forEach(key => {
+      // 객체 내의 문자열 값에 대해서만 암호화/복호화 처리
+      if (type === 'urlEncode') {
+        cryptionData[key] = encodeURIComponent(value);
+      } else if (type === 'urlDecode') {
+        cryptionData[key] = decodeURIComponent(value);
+      } else if (type === 'encrypt') {
+        cryptionData[key] = encodeURIComponent(encryptText(data[key]));
+      } else if (type === 'decrypt') {
+        const decodedValue = decodeURIComponent(data[key]);
+        cryptionData[key] = decryptText(decodedValue);
+      }
+    });
+    return cryptionData;
   };
 
-  if (type === 'urlEncode') {
-    // URL 인코딩
-    if (value.trim() === "") {
-      return null;
-    }
-    return urlEncode(value);
-
-  } else if (type === 'encrypt') {
-    // AES 암호화
-    if (value.trim() === "") {
-      return null;
-    }
-    const Encrypt = encryptText(value, ENCRYPTKEY)
-    return urlEncode(Encrypt);
-  } else if (type === 'decrypt') {
-    // AES 복호화
-    if (value.trim() === "") {
-      return null;
-    }
-    const decryptedValue = urlDecode(decryptedValue)
-    return decryptText(decryptedValue, ENCRYPTKEY); // 복호화 후 URL 디코딩
-  } else {
-    return null;
+  if (value != undefined && value !== null) {
+    return processCryption(value);
   }
 
 };

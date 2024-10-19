@@ -108,7 +108,7 @@ function CreateUserAccountLink(props) {
   const createUserHandleSubmit = async (e) => {
     e.preventDefault();
 
-    const requestData = {
+    const resultData = {
       "userID": userData.userID,
       "userPWD": userData.userPWD,
       "userPWDConfirm": userData.userPWDConfirm,
@@ -118,6 +118,7 @@ function CreateUserAccountLink(props) {
       "userAlias": userData.userAlias,
       "userAccountLink": "google",
     };
+    const requestData = Cryption('encrypt', resultData);
 
     Validation(validationMessages, setValidationMessages, 'userID', '', userData.userID);
     Validation(validationMessages, setValidationMessages, 'userPWD', '', userData.userPWD);

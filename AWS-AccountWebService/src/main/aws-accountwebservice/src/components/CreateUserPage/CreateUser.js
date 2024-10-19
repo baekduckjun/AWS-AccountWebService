@@ -153,10 +153,10 @@ function CreateUser(props) {
       return;
     } 
 
-    const EncryptUserID = Cryption('encrypt', userData.userID);
-    const requestData = {
-      "userID": EncryptUserID
+    const resultData = {
+      "userID": userData.userID
     };
+    const requestData = Cryption('encrypt', resultData);
 
     axios({
       method: "POST",
@@ -208,7 +208,7 @@ function CreateUser(props) {
         return;
     }
 
-    const requestData = {
+    const resultData = {
       "userID": userData.userID,
       "userPWD": userData.userPWD,
       "userPWDConfirm": userData.userPWDConfirm,
@@ -218,6 +218,7 @@ function CreateUser(props) {
       "userAlias": userData.userAlias,
       "userAccountLink": "normal",
     };
+    const requestData = Cryption('encrypt', resultData);
 
     axios({
       method: "POST",

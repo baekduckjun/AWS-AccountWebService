@@ -1,6 +1,7 @@
 package account.webservice.product.common.jwt.filter;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.net.URLDecoder;
 import java.util.Collection;
 import java.util.Date;
@@ -36,11 +37,13 @@ public class doLoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager; //AuthenticationManager 주입
 	private final JWTUtil jwtUtil; //JWTUtil 주입
 	private final JWTRefreshRepository jwtRefreshRepository; //JWTRefreshRepository 주입
+	private final EncryptionUtil encryptionUtil;
 
-    public doLoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, JWTRefreshRepository jwtRefreshRepository) {
+    public doLoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, JWTRefreshRepository jwtRefreshRepository, EncryptionUtil encryptionUtil) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.jwtRefreshRepository = jwtRefreshRepository;
+        this.encryptionUtil = encryptionUtil;
     }
     
     @Autowired
@@ -54,16 +57,11 @@ public class doLoginFilter extends UsernamePasswordAuthenticationFilter {
         try {
             // 요청 바디(InputStream)에서 JSON을 읽어 LoginRequest 객체로 변환
             UserDTO userDTO = mapper.readValue(request.getInputStream(), UserDTO.class);
+            userDTO = DecryptUser(userDTO);
             
             String userID = userDTO.getUserID();
 	    	String userPWD = userDTO.getUserPWD();
-	    	
-	    	EncryptionUtil URLEncoding = new EncryptionUtil();
-			userID = URLDecoder.decode(userID, "UTF-8");
-			userID = URLEncoding.AESDecrypt(userID);
-			userPWD = URLDecoder.decode(userPWD, "UTF-8");
-			userPWD = URLEncoding.AESDecrypt(userPWD);
-			userPWD = URLEncoding.EncryptSHA256(userPWD);
+			userPWD = encryptionUtil.EncryptSHA256(userPWD);
 	        
     		//스프링 시큐리티에서 username과 password를 검증하기 위해서는 token에 담아야 함
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userID, userPWD, null);
@@ -128,5 +126,24 @@ public class doLoginFilter extends UsernamePasswordAuthenticationFilter {
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
     	//로그인 실패시 401 응답 코드 반환
         response.setStatus(401);
+    }
+    
+    public UserDTO DecryptUser(UserDTO userDTO) {
+    	
+    	try {
+	    	Field[] fields = userDTO.getClass().getDeclaredFields(); // 모든 필드를 가져옴
+	    	for(Field data : fields) {
+	    		data.setAccessible(true); // private 필드에도 접근 가능하게 설정
+	    		String value = (String) data.get(userDTO); // 필드의 값 가져오기
+	    		if (value != null) {
+					value = URLDecoder.decode(value, "UTF-8");
+					value = encryptionUtil.AESDecrypt(value);
+					data.set(userDTO, value); // 복호화된 값으로 필드 설정
+	    		}
+			}
+    	} catch (Exception e) {
+    		return null;
+    	}
+    	return (UserDTO) userDTO;
     }
 }

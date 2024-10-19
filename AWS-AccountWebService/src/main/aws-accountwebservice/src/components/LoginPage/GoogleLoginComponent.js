@@ -12,7 +12,7 @@ const googleConfig = {
     clientPWD: process.env.REACT_APP_GOOGLE_OAUTH_CLIENTPWD,
 };
 
-let requestData = {};
+let resultData = {};
 
 function GoogleCreateUser(data) {
     /* 
@@ -32,9 +32,8 @@ function GoogleCreateUser(data) {
       - sub : 사용자의 고유 식별자, 사용자가 어플리케이션에 로그인할때마다 동일하게 유지
     */
     // 전송하고 싶은 데이터를 객체로 정의
-    const EncryptUserID = Cryption('encrypt', data.email);
-    requestData = {
-        "userID": EncryptUserID,
+    resultData = {
+        "userID": data.email,
         "userPWD": data.email,
         "userPWDConfirm": data.email,
         "userName": data.name,
@@ -43,6 +42,7 @@ function GoogleCreateUser(data) {
         "userAlias": "",
         "userAccountLink": "google",
     };
+    const requestData = Cryption('encrypt', resultData);
 
     const verifyID = async () => {
         try {
@@ -77,13 +77,13 @@ function GoogleCreateUser(data) {
 }
 
 function doLogin(data) {
-    const requestData = {
-        userID : Cryption('encrypt', data.userID),
-        userPWD : Cryption('encrypt', data.userPWD),
+    const resultData = {
+        userID : data.userID,
+        userPWD : data.userPWD,
     };
+    const requestData = Cryption('encrypt', resultData);
 
     let url = process.env.REACT_APP_DOMAIN + process.env.REACT_APP_USER_URL+'/dologin';
-
     const login = async () => {
         try {
                 const res = await axios({
@@ -133,18 +133,18 @@ function GoogleLoginComponent(props) {
                     const createGoogleUserResult = await GoogleCreateUser(googleResult); // GoogleCreateUser가 완료될 때까지 기다림
                     if (createGoogleUserResult == "Create") {
                         // navigate 함수에 state를 이용해 데이터를 전송
-                        requestData = {
-                            ...requestData,
+                        resultData = {
+                            ...resultData,
                             "userID": googleResult.email,
                         };
-                        navigate("/components/CreateUserPage/CreateUserAccountLink", { state: { userAccountData: requestData } });
+                        navigate("/components/CreateUserPage/CreateUserAccountLink", { state: { userAccountData: resultData } });
                     } else if (createGoogleUserResult == "Login") {
-                        requestData = {
-                            ...requestData,
+                        resultData = {
+                            ...resultData,
                             "userID": googleResult.email,
                         };
                         
-                        const result = await doLogin(requestData);
+                        const result = await doLogin(resultData);
                         if ("Success" == result)
                           navigate("/components/MainPage/Main");
                     }

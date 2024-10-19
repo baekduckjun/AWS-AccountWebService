@@ -31,17 +31,21 @@ public class SecurityConfig {
 	private final AuthenticationConfiguration authenticationConfiguration;
 	private final JWTUtil jwtUtil; //JWTUtil 주입
 	private final JWTRefreshRepository jwtRefreshRepository; //JWTRefreshRepository 주입
+	private final EncryptionUtil encryptionUtil;
 	
-	public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, JWTRefreshRepository jwtRefreshRepository) {
+	public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, JWTRefreshRepository jwtRefreshRepository, EncryptionUtil encryptionUtil) {
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtUtil = jwtUtil;
         this.jwtRefreshRepository = jwtRefreshRepository;
+        this.encryptionUtil = encryptionUtil;
     }
 	
+	/*
 	@Bean
 	public EncryptionUtil bCryptPasswordEncoder() {
-		return new EncryptionUtil();
+		return encryptionUtil;
 	}
+	*/
 	
 	//AuthenticationManager Bean 등록
 	@Bean
@@ -91,7 +95,7 @@ public class SecurityConfig {
 				.anyRequest().authenticated());
 		
 		
-		doLoginFilter loginFilter = new doLoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, jwtRefreshRepository);
+		doLoginFilter loginFilter = new doLoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, jwtRefreshRepository, encryptionUtil);
 		loginFilter.setFilterProcessesUrl("/api/v1/user/dologin");
 		
 		String logoutURL = "/api/v1/user/dologout";
