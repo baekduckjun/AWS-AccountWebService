@@ -46,10 +46,12 @@ function Login(props) {
     if (userData.userID == '' || userData.userPWD == '')
       return;
     
-    const requestData = {
-      userID : Cryption('encrypt', userData.userID),
-      userPWD : Cryption('encrypt', userData.userPWD),
+    const resultData = {
+      userID : userData.userID,
+      userPWD : userData.userPWD,
     };
+    const requestData = Cryption('encrypt', resultData);
+
     let url = process.env.REACT_APP_DOMAIN + process.env.REACT_APP_USER_URL+'/dologin';
     await axios({
       method: "POST",

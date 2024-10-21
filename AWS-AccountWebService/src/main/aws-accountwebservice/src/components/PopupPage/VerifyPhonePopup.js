@@ -156,10 +156,10 @@ function VerifyPhonePopup({ isOpen, onClose, getRef, isVerifyPhonePopupClosing, 
               onChange={(e) => setUserData({...userData, userVerifyPhone: e.target.value})}
               onBlur={() => Validation(validationMessages, setValidationMessages, 'userVerifyPhone', 'error', userData.userVerifyPhone)}
             />
-            <div className='error-validation'>{validationMessages.userVerifyPhoneValidationMessage}&nbsp;</div>
             <p>남은 시간: {Math.floor(timer / 60)}분 {timer % 60}초</p>
           </div>
         )}
+        <div className='error-validation'>{validationMessages.userVerifyPhoneValidationMessage}&nbsp;</div>
         <div id="recaptcha-container"></div>
         <button onClick={handleClose}>닫기</button>
         <button onClick={verifyPhone} disabled={!sendingPhone}>인증하기</button>

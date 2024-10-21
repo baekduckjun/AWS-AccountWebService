@@ -33,7 +33,7 @@ public class UserController {
     @PostMapping("/create")
     public ResponseEntity<Map<String, Object>> createUser(@RequestBody UserDTO userDTO) {
     	try {
-    		userDTO = DecryptUser(userDTO);
+    		userDTO = encryptionUtil.DecryptUser(userDTO);
 	    	String createUserResult = userService.createUser(userDTO);
 	    	log.info("createUserResult = {}", createUserResult);
 	    	if ("Success".equals(createUserResult)) {
@@ -56,10 +56,33 @@ public class UserController {
     public ResponseEntity<Map<String, Object>> findByUserID(@RequestBody UserDTO userDTO) {
     
     	try {
-    		userDTO = DecryptUser(userDTO);
+    		userDTO = encryptionUtil.DecryptUser(userDTO);
     		String userID = userDTO.getUserID();
 			UserDTO findByUserIDResult = userService.findByUserID(userID);
 	        
+	        if (findByUserIDResult == null) {
+	        	response.put("result", "Not Exsits");
+	        } else {
+	        	response.put("result", "Success");
+	            response.put("data", findByUserIDResult);
+	        }
+	        return ResponseEntity.ok(response);
+		} catch (Exception e) {
+			response.put("result", "Service Error");
+			response.put("data", e);
+			return ResponseEntity.ok(response);
+		}
+    }
+    
+    @PostMapping("/getuserinfo")
+    public ResponseEntity<Map<String, Object>> getUserInfo(@RequestBody UserDTO userDTO) {
+    
+    	try {
+    		userDTO = encryptionUtil.DecryptUser(userDTO);
+    		String userID = userDTO.getUserID();
+			UserDTO findByUserIDResult = userService.findByUserID(userID);
+			
+			findByUserIDResult = encryptionUtil.EncryptUser(findByUserIDResult, "userPWD");
 	        if (findByUserIDResult == null) {
 	        	response.put("result", "Not Exsits");
 	        } else {
@@ -117,24 +140,5 @@ public class UserController {
 			response.put("data", e);
 			return ResponseEntity.ok(response);
 		}
-    }
-    
-    public UserDTO DecryptUser(UserDTO userDTO) {
-    	
-    	try {
-	    	Field[] fields = userDTO.getClass().getDeclaredFields(); // 모든 필드를 가져옴
-	    	for(Field data : fields) {
-	    		data.setAccessible(true); // private 필드에도 접근 가능하게 설정
-	    		String value = (String) data.get(userDTO); // 필드의 값 가져오기
-	    		if (value != null) {
-					value = URLDecoder.decode(value, "UTF-8");
-					value = encryptionUtil.AESDecrypt(value);
-					data.set(userDTO, value); // 복호화된 값으로 필드 설정
-	    		}
-			}
-    	} catch (Exception e) {
-    		return null;
-    	}
-    	return (UserDTO) userDTO;
     }
 }

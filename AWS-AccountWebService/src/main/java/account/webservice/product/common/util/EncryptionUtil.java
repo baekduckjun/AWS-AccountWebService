@@ -1,5 +1,8 @@
 package account.webservice.product.common.util;
 
+import java.lang.reflect.Field;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -14,6 +17,9 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import account.webservice.product.user.UserDTO;
+
+@Component
 public class EncryptionUtil implements PasswordEncoder{
 
 	@Value("${SPRING.APP.API.ENCRYPTKEY}")
@@ -89,4 +95,47 @@ public class EncryptionUtil implements PasswordEncoder{
 		}
 		return rawPassword.equals(encodedPassword);
 	}
+	
+	
+	public UserDTO EncryptUser(UserDTO userDTO, String EX) {
+    	try {
+	    	Field[] fields = userDTO.getClass().getDeclaredFields(); // 모든 필드를 가져옴
+	    	for(Field data : fields) {
+	    		data.setAccessible(true); // private 필드에도 접근 가능하게 설정
+	    		String value = (String) data.get(userDTO); // 필드의 값 가져오기
+	    		String key = (String) data.getName();
+	    		if (value != null) {
+	    			if ( (EX.equals(key)) ) {
+	    				//해당 필드는 제거
+	    				data.set(userDTO, null);
+	    			} else {
+	    				value = AESEncrypt(value);
+						value = URLEncoder.encode(value, "UTF-8");
+						data.set(userDTO, value); // 복호화된 값으로 필드 설정
+	    			}
+	    		}
+			}
+    	} catch (Exception e) {
+    		return null;
+    	}
+    	return (UserDTO) userDTO;
+    }
+	
+	public UserDTO DecryptUser(UserDTO userDTO) {
+    	try {
+	    	Field[] fields = userDTO.getClass().getDeclaredFields(); // 모든 필드를 가져옴
+	    	for(Field data : fields) {
+	    		data.setAccessible(true); // private 필드에도 접근 가능하게 설정
+	    		String value = (String) data.get(userDTO); // 필드의 값 가져오기
+	    		if (value != null) {
+					value = URLDecoder.decode(value, "UTF-8");
+					value = AESDecrypt(value);
+					data.set(userDTO, value); // 복호화된 값으로 필드 설정
+	    		}
+			}
+    	} catch (Exception e) {
+    		return null;
+    	}
+    	return (UserDTO) userDTO;
+    }
 }

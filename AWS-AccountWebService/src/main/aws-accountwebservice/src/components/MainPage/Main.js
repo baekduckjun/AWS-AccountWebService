@@ -6,47 +6,152 @@ import axios from "axios";
 import { Validation } from 'utils/Validation'; // utile.js 파일을 가져옴
 import { Cryption } from 'utils/Cryption'; // utile.js 파일을 가져옴
 
+function doGetUserInfo(userID) {
+
+  const resultData = {
+    userID : userID,
+  };
+  const requestData = Cryption('encrypt', resultData);
+  
+  let url = process.env.REACT_APP_DOMAIN + process.env.REACT_APP_USER_URL+'/getuserinfo';
+  const getUserInfo = async () => {
+    try {
+      const res = await axios({
+        method: "POST",
+        url: url,
+        data: requestData,
+        // header에서 JSON 타입의 데이터라는 것을 명시
+        headers: {'Content-type': 'application/json'},
+        withCredentials: true // CROS true
+      });
+
+      let result = res.data;
+      let resultMessage = result.result;
+      let resultData = result.data;
+      if (resultMessage != 'Success') {
+          alert(resultMessage);
+      } else {
+        return Cryption('decrypt', resultData);
+        //setMemberID(resultData.memberID);
+        //setMemberName(resultData.memberName);
+        //setMemberEmail(resultData.memberEmail);
+        //setStatus('complelte');
+      }
+    } catch(error){
+      alert(error);
+    }
+  };
+
+  return getUserInfo();
+}
+
+const VerifyPhonePopupOpen = () => {
+  const newWindow = window.open("", "_self");
+
+  let url = 'https://testapi.openbanking.or.kr/oauth/2.0/authorize'
+    +'?response_type=code'
+    +'&client_id='+process.env.REACT_APP_OPENBANKING_CLIENTID
+    +'&redirect_uri=http://localhost:3000/components/MainPage/Main'
+    +'&scope=login inquiry transfer'
+    +'&client_info=test'
+    +'&state=b80BLsfigm9OokPTjy03elbJqRHOfGSY'
+    +'&auth_type=0';
+
+  newWindow.location.href = url;
+  /*
+  axios({
+    method: "GET",
+    url: url,
+    dataType: "jsonp",
+  }).then((res)=>{
+    let result = res.data;
+    let resultMessage = result.result;
+    let resultData = result.data;
+    debugger;
+  }).catch(error=>{
+      alert(error);
+  });
+  */
+};
+
 function Main(props) {
 
+  const [userData, setUserData] = useState(null);
+
+  // 비동기 함수를 사용하여 데이터를 가져오는 함수
+  const fetchUserData = async () => {
+    const result = await doGetUserInfo("zkdlem0309");
+    setUserData(result); // 응답이 도착하면 상태 업데이트
+  };
+
+  useEffect(() => {
+    fetchUserData(); // 컴포넌트가 마운트될 때 데이터 가져오기
+  }, []); // 빈 배열을 두 번째 인자로 주어 마운트 시 한 번만 실행
+  
   let mainContents = [];
 
-  mainContents.push(
-    <div>
-      <div className="content">
-        <div className="asset-box">
-          <h2>내 페이머니</h2>
-          <p>5,000,000원</p>
-          <div className="asset-buttons">
-            <button onclick="location.href='#';">충전</button>
-            <button onclick="location.href='#';">송금</button>
-            <button onclick="location.href='#';">결제</button>
+  if (userData) {
+    mainContents.push(
+      <div>
+        <div className="content">
+          <div className="asset-box">
+            { userData.isRegAccount == 'N' 
+            ?
+            <button onClick={VerifyPhonePopupOpen}>계좌 등록 하기</button>
+            :
+              <div>
+                <h2>내 페이머니</h2>
+                <p>5,000,000원</p>
+              </div>
+            }
+            <div className="asset-buttons">
+              <button onclick="location.href='#';">충전</button>
+              <button onclick="location.href='#';">송금</button>
+              <button onclick="location.href='#';">결제</button>
+            </div>
+          </div>
+          <div className="menu">
+            <a href="#">내 프로필</a>
+            <a href="#">설정</a>
+            <a href="#">알림</a>
+            <a href="#">로그아웃</a>
           </div>
         </div>
-        <div className="menu">
-          <a href="#">내 프로필</a>
-          <a href="#">설정</a>
-          <a href="#">알림</a>
-          <a href="#">로그아웃</a>
+        <div className="navbar">
+          <a href="#">
+            <img src="/menu.png" className="menu1" alt="메뉴"></img>
+          </a>
+          <a href="#">
+            <img src="/home.png" className="home" alt="홈"></img>
+          </a>
+          <a href="#">
+            <img src="/money.png" className="money" alt="돈"></img>
+          </a>
+          <a href="#">
+            <img src="/mypage.webp" className="mypage" alt="마이페이지"></img>
+          </a>
         </div>
       </div>
-      <div className="navbar">
-        <a href="#">
-          <img src="/menu.png" className="menu1" alt="메뉴"></img>
-        </a>
-        <a href="#">
-          <img src="/home.png" className="home" alt="홈"></img>
-        </a>
-        <a href="#">
-          <img src="/money.png" className="money" alt="돈"></img>
-        </a>
-        <a href="#">
-          <img src="/mypage.webp" className="mypage" alt="마이페이지"></img>
-        </a>
-      </div>
+    );
+  }
+  return (
+    <div>
+      {mainContents}
+
+      {/* isVerifyPhonePopupOpen && (
+        <VerifyPhonePopup
+          isOpen={isVerifyPhonePopupOpen}
+          onClose={VerifyPhonePopupClose}
+          getRef = {getPopupRef}
+          isVerifyPhonePopupClosing = {isVerifyPhonePopupClosing}
+          userData = {userData}
+          setUserData = {setUserData}
+          isVerifyPhone = {isVerifyPhone}
+          setIsVerifyPhone = {setIsVerifyPhone}
+        />
+      )*/}
     </div>
   );
-
-  return (<div>{mainContents}</div>);
 }
 
 export default Main;

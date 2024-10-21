@@ -90,7 +90,7 @@ public class SecurityConfig {
 		http
 			.authorizeRequests((auth) -> auth 
 				.requestMatchers("/", "/error", "/index.html", "/static/**", "/api/v1/jwtrefresh").permitAll()
-				.requestMatchers("/api/v1/user/create", "/api/v1/user/findbyid", "/api/v1/user/dologin").permitAll()
+				.requestMatchers("/api/v1/user/create", "/api/v1/user/findbyid", "/api/v1/user/dologin", "/api/v1/user/getuserinfo").permitAll()
 				.requestMatchers("/api/v1/user/admin").hasRole("ADMIN")
 				.anyRequest().authenticated());
 		
