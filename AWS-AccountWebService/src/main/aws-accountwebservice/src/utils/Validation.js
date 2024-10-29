@@ -7,21 +7,30 @@ export const Validation = (validationMessages, setValidationMessage, type, type2
     if (value.trim() === "") {
       setValidationMessage(validationMessages => ({...validationMessages, userIDValidationMessage: '아이디를 입력하세요'}));
     } else {
-      setValidationMessage(validationMessages => ({...validationMessages, userIDValidationMessage: ''}));
+      if (type2 === 'pass') {
+        setValidationMessage(validationMessages => ({...validationMessages, userIDValidationMessage: ''}));
+      } else if (type2 === 'server error') {
+        setValidationMessage(validationMessages => ({...validationMessages, userIDValidationMessage: '서버 오류입니다.'}));
+      }
     }
   } else if (type === 'userVerifyID') {
     if(type2 ==='available') {
       setValidationMessage(validationMessages => ({...validationMessages, userIDValidationMessage: '사용가능한 아이디입니다.'}));
     } else if (type2 === 'exists'){
       setValidationMessage(validationMessages => ({...validationMessages, userIDValidationMessage: '사용중인 아이디가 있습니다.'}));
-    } else {
+    } else if (type2 === 'needVerifyID'){
       setValidationMessage(validationMessages => ({...validationMessages, userIDValidationMessage:'오른쪽에 인증하기 버튼을 누러 인증하세요'}));
+    } else if (type2 === 'server error'){
+      setValidationMessage(validationMessages => ({...validationMessages, userIDValidationMessage:'서버 오류입니다.'}));
     }
   } else if (type === 'userPWD') {
     if (value.trim() === "") {
       setValidationMessage(validationMessages => ({...validationMessages, userPWDValidationMessage: '비밀번호를 입력하세요'}));
     } else {
-      setValidationMessage(validationMessages => ({...validationMessages, userPWDValidationMessage: ''}));
+        setValidationMessage(validationMessages => ({...validationMessages, userPWDValidationMessage: ''}));
+      if (type2 === 'server error') {
+        setValidationMessage(validationMessages => ({...validationMessages, userPWDValidationMessage: '서버 오류입니다.'}));
+      }
     }
   } else if (type === 'userPWDConfirm') {
     if (value.trim() === "") {
@@ -30,20 +39,31 @@ export const Validation = (validationMessages, setValidationMessage, type, type2
       if (type2 == 'notEuqal') {
         setValidationMessage(validationMessages => ({...validationMessages, userPWDConfirmValidationMessage: '비밀번호가 맞지 않습니다. 다시 입력해주세요.'}));
       } else {
-        setValidationMessage(validationMessages => ({...validationMessages, userPWDConfirmValidationMessage: ''}));
+          setValidationMessage(validationMessages => ({...validationMessages, userPWDConfirmValidationMessage: ''}));
+        if (type2 === 'server error') {
+          setValidationMessage(validationMessages => ({...validationMessages, userPWDConfirmValidationMessage: '서버 오류입니다.'}));
+        }
       }
     }
   } else if (type === 'userName') {
     if (value.trim() === "") {
       setValidationMessage(validationMessages => ({...validationMessages, userNameValidationMessage: '이름을 입력하세요'}));
     } else {
-      setValidationMessage(validationMessages => ({...validationMessages, userNameValidationMessage: ''}));
+      if (type2 === 'pass') {
+        setValidationMessage(validationMessages => ({...validationMessages, userNameValidationMessage: ''}));
+      } else if (type2 === 'server error') {
+        setValidationMessage(validationMessages => ({...validationMessages, userNameValidationMessage: '서버 오류입니다.'}));
+      }
     }
   } else if (type === 'userPhone') {
     if (value.trim() === "") {
       setValidationMessage(validationMessages => ({...validationMessages, userPhoneValidationMessage: '휴대폰 인증을 진행 해주세요.'}));
     } else {
-      setValidationMessage(validationMessages => ({...validationMessages, userPhoneValidationMessage: ''}));
+      if (type2 === 'pass') {
+        setValidationMessage(validationMessages => ({...validationMessages, userPhoneValidationMessage: ''}));
+      } else if (type2 === 'server error') {
+        setValidationMessage(validationMessages => ({...validationMessages, userPhoneValidationMessage: '서버 오류입니다.'}));
+      }
     }
   } else if (type === 'userVerifyPhone') {
     if (value.trim() === "") {
@@ -57,21 +77,29 @@ export const Validation = (validationMessages, setValidationMessage, type, type2
         setValidationMessage(validationMessages => ({...validationMessages, userVerifyPhoneValidationMessage: '인증번호가 잘못되었습니다.'}));
       } else if (type2 === 'notVerifyPhone'){
         setValidationMessage(validationMessages => ({...validationMessages, userPhoneValidationMessage: '핸드폰 인증을 진행하세요'}));
-      } else {
-        setValidationMessage(validationMessages => ({...validationMessages, userPhoneValidationMessage: ''}));
+      } else if (type2 === 'server error') {
+        setValidationMessage(validationMessages => ({...validationMessages, userPhoneValidationMessage: '서버 오류입니다.'}));
       }
     }
   } else if (type === 'userEmail') {
     if (value.trim() === "") {
       setValidationMessage(validationMessages => ({...validationMessages, userEmailValidationMessage: '이메일을 입력하세요'}));
     } else {
-      setValidationMessage(validationMessages => ({...validationMessages, userEmailValidationMessage: ''}));
+      if (type2 === 'pass') {
+        setValidationMessage(validationMessages => ({...validationMessages, userEmailValidationMessage: ''}));
+      } else if (type2 === 'server error') {
+        setValidationMessage(validationMessages => ({...validationMessages, userEmailValidationMessage: '서버 오류입니다.'}));
+      }
     }
   } else if (type === 'userAlias') {
     if (value.trim() === "") {
       setValidationMessage(validationMessages => ({...validationMessages, userAliasValidationMessage: '별명을 입력하세요'}));
     } else {
-      setValidationMessage(validationMessages => ({...validationMessages, userAliasValidationMessage: ''}));
+      if (type2 === 'pass') {
+        setValidationMessage(validationMessages => ({...validationMessages, userAliasValidationMessage: ''}));
+      } else if (type2 === 'server error') {
+        setValidationMessage(validationMessages => ({...validationMessages, userAliasValidationMessage: '서버 오류입니다.'}));
+      }
     }
   }
 };

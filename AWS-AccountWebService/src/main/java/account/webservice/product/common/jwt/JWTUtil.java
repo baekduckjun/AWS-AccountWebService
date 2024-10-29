@@ -27,16 +27,31 @@ public class JWTUtil {
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("username", String.class);
     }
 
+	public String getCategory(String token) {
+        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("category", String.class);
+    }
+	
     public String getRole(String token) {
 
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("role", String.class);
     }
-
+    
     public Boolean isExpired(String token) {
 
         return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
     }
 
+    public Cookie createCookie(String key, String value) {
+
+        Cookie cookie = new Cookie(key, value);
+        cookie.setMaxAge(24*60*60);
+        //cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+
+        return cookie;
+    }
+    
     public String createJwt(String category, String username, String role, Long expiredMs) {
 
         return Jwts.builder()
@@ -49,18 +64,28 @@ public class JWTUtil {
                 .compact();
     }
     
-    public String getCategory(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().get("category", String.class);
+    public JWTRefreshEntity addRefreshEntity(String userID, String refresh, Long expiredMs) {
+
+        Date date = new Date(System.currentTimeMillis() + expiredMs);
+
+        JWTRefreshEntity refreshEntity = new JWTRefreshEntity();
+        refreshEntity.setUserID(userID);
+        refreshEntity.setRefresh(refresh);
+        refreshEntity.setExpiration(date.toString());
+
+        return refreshEntity;
     }
     
-    public Cookie createCookie(String key, String value) {
+    public JWTRefreshLogEntity addRefreshLogEntity(String userID, String refresh, Long expiredMs) {
 
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(24*60*60);
-        //cookie.setSecure(true);
-        //cookie.setPath("/");
-        cookie.setHttpOnly(true);
+        Date date = new Date(System.currentTimeMillis() + expiredMs);
 
-        return cookie;
+        JWTRefreshLogEntity refreshLogEntity = new JWTRefreshLogEntity();
+        refreshLogEntity.setUserID(userID);
+        refreshLogEntity.setRefresh(refresh);
+        refreshLogEntity.setExpiration(date.toString());
+
+        return (refreshLogEntity);
     }
+    
 }

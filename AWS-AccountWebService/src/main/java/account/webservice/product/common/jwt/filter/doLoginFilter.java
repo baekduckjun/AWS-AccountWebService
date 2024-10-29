@@ -21,6 +21,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import account.webservice.product.common.jwt.CustomUserDetails;
 import account.webservice.product.common.jwt.JWTRefreshEntity;
+import account.webservice.product.common.jwt.JWTRefreshLogEntity;
+import account.webservice.product.common.jwt.JWTRefreshLogRepository;
 import account.webservice.product.common.jwt.JWTRefreshRepository;
 import account.webservice.product.common.jwt.JWTUtil;
 import account.webservice.product.common.util.EncryptionUtil;
@@ -36,13 +38,15 @@ public class doLoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager; //AuthenticationManager 주입
 	private final JWTUtil jwtUtil; //JWTUtil 주입
-	private final JWTRefreshRepository jwtRefreshRepository; //JWTRefreshRepository 주입
+	private final JWTRefreshRepository jwtRefreshRepository; //JWTRefreshRepository 
+	private final JWTRefreshLogRepository jwtRefreshLogRepository; //JWTRefreshRepository 주입
 	private final EncryptionUtil encryptionUtil;
 
-    public doLoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, JWTRefreshRepository jwtRefreshRepository, EncryptionUtil encryptionUtil) {
+    public doLoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, JWTRefreshRepository jwtRefreshRepository, JWTRefreshLogRepository jwtRefreshLogRepository, EncryptionUtil encryptionUtil) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.jwtRefreshRepository = jwtRefreshRepository;
+        this.jwtRefreshLogRepository = jwtRefreshLogRepository;
         this.encryptionUtil = encryptionUtil;
     }
     
@@ -57,7 +61,7 @@ public class doLoginFilter extends UsernamePasswordAuthenticationFilter {
         try {
             // 요청 바디(InputStream)에서 JSON을 읽어 LoginRequest 객체로 변환
             UserDTO userDTO = mapper.readValue(request.getInputStream(), UserDTO.class);
-            userDTO = DecryptUser(userDTO);
+            userDTO = encryptionUtil.DecryptUser(userDTO);
             
             String userID = userDTO.getUserID();
 	    	String userPWD = userDTO.getUserPWD();
@@ -94,14 +98,21 @@ public class doLoginFilter extends UsernamePasswordAuthenticationFilter {
         String refresh = jwtUtil.createJwt("refresh", userID, role, 86400000L);
         
         //Refresh 토큰 저장
-        addRefreshEntity(userID, refresh, 86400000L);
+        JWTRefreshEntity refreshEntity = jwtUtil.addRefreshEntity(userID, refresh, 86400000L);
+    	JWTRefreshLogEntity refreshLogEntity = jwtUtil.addRefreshLogEntity(userID, refresh, 86400000L);
+    	jwtRefreshRepository.save(refreshEntity);
+    	jwtRefreshLogRepository.save(refreshLogEntity);
 
         //응답 설정
         response.setHeader("access", access);
         response.addCookie(jwtUtil.createCookie("refresh", refresh));
         
         // 응답 body에 데이터 작성
-        String responseBody = "{\"result\": \"Success\"}";
+        String responseBody = ""
+        		+ "{"
+        		+	"\"status\": \"Success\","
+        		+ 	"\"result\": \"Success\""
+        		+ "}";
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 		response.getWriter().write(responseBody);
@@ -109,41 +120,21 @@ public class doLoginFilter extends UsernamePasswordAuthenticationFilter {
         response.setStatus(HttpStatus.OK.value());
     }
     
-    private void addRefreshEntity(String userID, String refresh, Long expiredMs) {
-
-        Date date = new Date(System.currentTimeMillis() + expiredMs);
-
-        JWTRefreshEntity refreshEntity = new JWTRefreshEntity();
-        refreshEntity.setUserID(userID);
-        refreshEntity.setRefresh(refresh);
-        refreshEntity.setExpiration(date.toString());
-
-        jwtRefreshRepository.save(refreshEntity);
-    }
-
 	//로그인 실패시 실행하는 메소드
     @Override
-    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
-    	//로그인 실패시 401 응답 코드 반환
-        response.setStatus(401);
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException {
+    	
+    	// 응답 body에 데이터 작성
+        String responseBody = ""
+        		+ "{"
+        		+	"\"status\": \"Success\""
+        		+ 	"\"result\": \"Fail\""
+        		+ "}";
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+		response.getWriter().write(responseBody);
+		
+        response.setStatus(HttpStatus.OK.value());
     }
     
-    public UserDTO DecryptUser(UserDTO userDTO) {
-    	
-    	try {
-	    	Field[] fields = userDTO.getClass().getDeclaredFields(); // 모든 필드를 가져옴
-	    	for(Field data : fields) {
-	    		data.setAccessible(true); // private 필드에도 접근 가능하게 설정
-	    		String value = (String) data.get(userDTO); // 필드의 값 가져오기
-	    		if (value != null) {
-					value = URLDecoder.decode(value, "UTF-8");
-					value = encryptionUtil.AESDecrypt(value);
-					data.set(userDTO, value); // 복호화된 값으로 필드 설정
-	    		}
-			}
-    	} catch (Exception e) {
-    		return null;
-    	}
-    	return (UserDTO) userDTO;
-    }
 }

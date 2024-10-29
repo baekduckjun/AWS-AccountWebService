@@ -31,10 +31,11 @@ public class JWTFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 				
 		//request에서 Authorization 헤더를 찾음
-        String accessToken= request.getHeader("Access");
+        String accessToken= request.getHeader("access");
 				
 		//Authorization 헤더 검증
-        if (accessToken == null || !accessToken.startsWith("Bearer ")) {
+        //if (accessToken == null || !accessToken.startsWith("Bearer ")) {
+        if (accessToken == null) {
 
             System.out.println("token null");
             filterChain.doFilter(request, response);
@@ -49,11 +50,18 @@ public class JWTFilter extends OncePerRequestFilter {
         } catch (ExpiredJwtException e) {
 
             //response body
-            PrintWriter writer = response.getWriter();
-            writer.print("access token expired");
+        	// 응답 body에 데이터 작성
+            String responseBody = ""
+            		+ "{"
+            		+	"\"status\": \"Success\","
+            		+ 	"\"result\": \"Access Token Expired\""
+            		+ "}";
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+    		response.getWriter().write(responseBody);
 
             //response status code
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setStatus(HttpServletResponse.SC_OK);
             return;
         }
         

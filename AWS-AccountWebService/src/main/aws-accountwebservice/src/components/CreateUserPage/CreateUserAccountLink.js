@@ -51,8 +51,8 @@ function CreateUserAccountLink(props) {
   }
 
   {/** 휴대폰 인증 팝업 **/}
-  const [isVerifyPhonePopupOpen, setIsVerifyPhonePopupOpen] = useState(false);
-  const [isVerifyPhonePopupClosing, setIsVerifyPhonePopupClosing] = useState(false);
+  const [isVerifyPhonePopupOpen, setIsVerifyPhonePopupOpen] = useState(false);      // 팝업 실행 유무
+  const [isVerifyPhonePopupClosing, setIsVerifyPhonePopupClosing] = useState(false);// 팝업이 닫힐 시 애니메이션을 위한 먼저 true
 
   const VerifyPhonePopupOpen = () => {
     setIsVerifyPhonePopupOpen(true);
@@ -60,7 +60,7 @@ function CreateUserAccountLink(props) {
   };
 
   const VerifyPhonePopupClose = () => {
-    setIsVerifyPhonePopupClosing(true); // 애니메이션 상태 활성화
+    setIsVerifyPhonePopupClosing(true); // 팝업이 닫힐 시 애니메이션 실행 하기위한 먼저 true 
     setTimeout(() => {
       setIsVerifyPhonePopupOpen(false); // 애니메이션 후 팝업 닫기
     }, 300); // 애니메이션 시간
@@ -76,22 +76,17 @@ function CreateUserAccountLink(props) {
 
   useEffect(() => {
     // 팝업 외부 클릭 감지 함수
-    const handleClickOutside = (event) => {
-      if (isVerifyPhonePopupOpen && popupRef.current && !popupRef.current.contains(event.target)) {
-        setIsVerifyPhonePopupClosing(true); // 애니메이션 상태 활성화
-        setTimeout(() => {
-          setIsVerifyPhonePopupOpen(false); // 애니메이션 후 팝업 닫기
-        }, 300); // 애니메이션 시간
-      }
+    const verifyPhonePopupOutSideClick = (event) => {
+      VerifyPhonePopupClose();
     };
     
     if (isVerifyPhonePopupOpen){
       document.body.classList.remove('scrollHidden');
       // 클릭 이벤트 리스너 추가
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("mousedown", verifyPhonePopupOutSideClick);
     }else{
       document.body.classList.add('scrollHidden');
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('mousedown', verifyPhonePopupOutSideClick);
     }
 
     if (isVerifyPhone) {
@@ -100,12 +95,12 @@ function CreateUserAccountLink(props) {
 
     // 컴포넌트 언마운트 시 이벤트 리스너 제거
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("mousedown", verifyPhonePopupOutSideClick);
     };
   }, [isVerifyPhonePopupOpen]);
   {/** 휴대폰 인증 팝업 **/}
 
-  const createUserHandleSubmit = async (e) => {
+  const doCreateUser = async (e) => {
     e.preventDefault();
 
     const resultData = {
@@ -146,17 +141,18 @@ function CreateUserAccountLink(props) {
       // header에서 JSON 타입의 데이터라는 것을 명시
       headers: {'Content-type': 'application/json'}
     }).then((res)=>{
-      let result = res.data;
-      let resultMessage = result.result;
-      let resultData = result.data;
-      if ( resultMessage != 'Success') {
-        alert(resultMessage);
-      } else {
+      const result = res.data;
+      const resultStatus = result.status;
+      const resultMessage = result.result;
+      const resultData = result.data;
+      if ( resultStatus == 'Success') {
         alert("회원가입이 완료되었습니다.\n다시 로그인 해주세요.");
         navigate("/", { state: { isBack: true } });
+      } else {
+        alert(resultMessage);
       }
     }).catch(error=>{
-        alert(error);
+        alert("axios 서버 오류입니다.");
     });
   }
 
@@ -195,10 +191,10 @@ function CreateUserAccountLink(props) {
           placeholder="별명 입력"
           value={userData.userAlias}
           onChange={(e) => setUserData({...userData, userAlias: e.target.value})}
-          onBlur={() => Validation(validationMessages ,setValidationMessages, 'userAlias', '', userData.userAlias)}
+          onBlur={() => Validation(validationMessages ,setValidationMessages, 'userAlias', 'pass', userData.userAlias)}
         />
         <div className='error-validation'>{validationMessages.userAliasValidationMessage}&nbsp;</div>
-        <button className="signup" onClick={createUserHandleSubmit}>추가 정보</button>
+        <button className="signup" onClick={doCreateUser}>추가 정보</button>
       </div>
     </div>
     );

@@ -54,18 +54,19 @@ function GoogleCreateUser(data) {
             });
 
             const result = res.data;
+            const resultStatus = result.status;
             const resultMessage = result.result;
-
-            if (resultMessage !== 'Success') {
+            const resultData = result.data;
+            if (resultStatus == 'Success') {
                 if (resultMessage === 'Not Exsits') {
                     alert("구글 연동이 완료되었습니다.\n추가 정보를 입력해야 회원가입이 완료됩니다.");
                     return "Create";
                 } else {
-                    alert(resultMessage);
-                    return "error";
+                    return "Login";
                 }
             } else {
-                return "Login";
+                alert(resultMessage);
+                return "error";
             }
         } catch (error) {
             alert('오류 발생: ' + error.message);
@@ -86,31 +87,28 @@ function doLogin(data) {
     let url = process.env.REACT_APP_DOMAIN + process.env.REACT_APP_USER_URL+'/dologin';
     const login = async () => {
         try {
-                const res = await axios({
+            const res = await axios({
                 method: "POST",
                 url: url,
                 data: requestData,
                 // header에서 JSON 타입의 데이터라는 것을 명시
                 headers: {'Content-type': 'application/json'},
-                withCredentials: true // CROS true
+                withCredentials: true // cookie 보내기
             });
 
-        let result = res.data;
-        let resultMessage = result.result;
-        let resultData = result.data;
-        if (resultMessage != 'Success') {
-            alert(resultMessage);
-        } else {
-            const accessToken = res.headers.get('Access');
-            if (accessToken) {
-            localStorage.setItem('accessToken', accessToken);
+            const result = res.data;
+            const resultStatus = result.status;
+            const resultMessage = result.result;
+            const resultData = result.data;
+            if (resultMessage == 'Success') {
+                const accessToken = res.headers.get('Access');
+                if (accessToken) {
+                    localStorage.setItem('access', accessToken);
+                }
+                return "Success";
+            } else {
+                alert(resultMessage);
             }
-            return "Success";
-            //setMemberID(resultData.memberID);
-            //setMemberName(resultData.memberName);
-            //setMemberEmail(resultData.memberEmail);
-            //setStatus('complelte');
-        }
         } catch(error){
             alert(error);
         }
@@ -128,7 +126,6 @@ function GoogleLoginComponent(props) {
         <GoogleOAuthProvider clientId={googleConfig.clientID}>
             <GoogleLogin
                 onSuccess={async (res) => {
-                    debugger;
                     let googleResult = jwtDecode(res.credential);
                     const createGoogleUserResult = await GoogleCreateUser(googleResult); // GoogleCreateUser가 완료될 때까지 기다림
                     if (createGoogleUserResult == "Create") {

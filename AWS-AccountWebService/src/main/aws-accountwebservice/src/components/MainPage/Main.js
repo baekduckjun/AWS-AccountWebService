@@ -3,8 +3,11 @@ import 'components/MainPage/Main.css';
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
+import Logout from 'components/MainPage/Logout';
+
 import { Validation } from 'utils/Validation'; // utile.js 파일을 가져옴
 import { Cryption } from 'utils/Cryption'; // utile.js 파일을 가져옴
+import {GoJWTRefresh} from 'utils/GoJWTRefresh'; // utile.js 파일을 가져옴
 
 function doGetUserInfo(userID) {
 
@@ -21,21 +24,25 @@ function doGetUserInfo(userID) {
         url: url,
         data: requestData,
         // header에서 JSON 타입의 데이터라는 것을 명시
-        headers: {'Content-type': 'application/json'},
+        headers: {
+          'Content-type': 'application/json',
+          'access': localStorage.getItem('access')
+        },
         withCredentials: true // CROS true
       });
 
-      let result = res.data;
-      let resultMessage = result.result;
-      let resultData = result.data;
-      if (resultMessage != 'Success') {
-          alert(resultMessage);
+      const result = res.data;
+      const resultStatus = result.status;
+      const resultMessage = result.result;
+      const resultData = result.data;
+      if (resultStatus == 'Success') {
+        if (resultMessage == 'Success') {
+          return Cryption('decrypt', resultData);
+        } else if (resultMessage == 'Access Token Expired') {
+          await GoJWTRefresh();
+        }
       } else {
-        return Cryption('decrypt', resultData);
-        //setMemberID(resultData.memberID);
-        //setMemberName(resultData.memberName);
-        //setMemberEmail(resultData.memberEmail);
-        //setStatus('complelte');
+        alert(resultMessage);
       }
     } catch(error){
       alert(error);
@@ -45,7 +52,7 @@ function doGetUserInfo(userID) {
   return getUserInfo();
 }
 
-const VerifyPhonePopupOpen = () => {
+const openBankingAutorize = () => {
   const newWindow = window.open("", "_self");
 
   let url = 'https://testapi.openbanking.or.kr/oauth/2.0/authorize'
@@ -58,20 +65,6 @@ const VerifyPhonePopupOpen = () => {
     +'&auth_type=0';
 
   newWindow.location.href = url;
-  /*
-  axios({
-    method: "GET",
-    url: url,
-    dataType: "jsonp",
-  }).then((res)=>{
-    let result = res.data;
-    let resultMessage = result.result;
-    let resultData = result.data;
-    debugger;
-  }).catch(error=>{
-      alert(error);
-  });
-  */
 };
 
 function Main(props) {
@@ -97,7 +90,7 @@ function Main(props) {
           <div className="asset-box">
             { userData.isRegAccount == 'N' 
             ?
-            <button onClick={VerifyPhonePopupOpen}>계좌 등록 하기</button>
+            <button onClick={openBankingAutorize}>계좌 등록 하기</button>
             :
               <div>
                 <h2>내 페이머니</h2>
@@ -105,16 +98,16 @@ function Main(props) {
               </div>
             }
             <div className="asset-buttons">
-              <button onclick="location.href='#';">충전</button>
-              <button onclick="location.href='#';">송금</button>
-              <button onclick="location.href='#';">결제</button>
+              <button onClick="location.href='#';">충전</button>
+              <button onClick="location.href='#';">송금</button>
+              <button onClick="location.href='#';">결제</button>
             </div>
           </div>
           <div className="menu">
             <a href="#">내 프로필</a>
             <a href="#">설정</a>
             <a href="#">알림</a>
-            <a href="#">로그아웃</a>
+            <Logout></Logout>
           </div>
         </div>
         <div className="navbar">
@@ -137,19 +130,6 @@ function Main(props) {
   return (
     <div>
       {mainContents}
-
-      {/* isVerifyPhonePopupOpen && (
-        <VerifyPhonePopup
-          isOpen={isVerifyPhonePopupOpen}
-          onClose={VerifyPhonePopupClose}
-          getRef = {getPopupRef}
-          isVerifyPhonePopupClosing = {isVerifyPhonePopupClosing}
-          userData = {userData}
-          setUserData = {setUserData}
-          isVerifyPhone = {isVerifyPhone}
-          setIsVerifyPhone = {setIsVerifyPhone}
-        />
-      )*/}
     </div>
   );
 }

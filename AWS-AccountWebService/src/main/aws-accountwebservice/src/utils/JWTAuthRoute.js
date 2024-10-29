@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 // JWT 토큰을 확인하는 함수 (로컬 스토리지에서 가져오는 예시)
 const isAuthenticated = () => {
-    const token = localStorage.getItem('accessToken');
+    const token = localStorage.getItem('access');
     // 토큰이 유효한지 간단히 확인하는 로직
     return token !== null;
 };

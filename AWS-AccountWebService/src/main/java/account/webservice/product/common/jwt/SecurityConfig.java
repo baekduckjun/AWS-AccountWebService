@@ -31,12 +31,14 @@ public class SecurityConfig {
 	private final AuthenticationConfiguration authenticationConfiguration;
 	private final JWTUtil jwtUtil; //JWTUtil 주입
 	private final JWTRefreshRepository jwtRefreshRepository; //JWTRefreshRepository 주입
+	private final JWTRefreshLogRepository jwtRefreshLogRepository; //JWTRefreshLogRepository 주입
 	private final EncryptionUtil encryptionUtil;
 	
-	public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, JWTRefreshRepository jwtRefreshRepository, EncryptionUtil encryptionUtil) {
+	public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil, JWTRefreshRepository jwtRefreshRepository, JWTRefreshLogRepository jwtRefreshLogRepository, EncryptionUtil encryptionUtil) {
         this.authenticationConfiguration = authenticationConfiguration;
         this.jwtUtil = jwtUtil;
         this.jwtRefreshRepository = jwtRefreshRepository;
+        this.jwtRefreshLogRepository = jwtRefreshLogRepository;
         this.encryptionUtil = encryptionUtil;
     }
 	
@@ -90,12 +92,12 @@ public class SecurityConfig {
 		http
 			.authorizeRequests((auth) -> auth 
 				.requestMatchers("/", "/error", "/index.html", "/static/**", "/api/v1/jwtrefresh").permitAll()
-				.requestMatchers("/api/v1/user/create", "/api/v1/user/findbyid", "/api/v1/user/dologin", "/api/v1/user/getuserinfo").permitAll()
+				.requestMatchers("/api/v1/user/create", "/api/v1/user/findbyid", "/api/v1/user/dologin").permitAll()
 				.requestMatchers("/api/v1/user/admin").hasRole("ADMIN")
 				.anyRequest().authenticated());
 		
 		
-		doLoginFilter loginFilter = new doLoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, jwtRefreshRepository, encryptionUtil);
+		doLoginFilter loginFilter = new doLoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, jwtRefreshRepository, jwtRefreshLogRepository, encryptionUtil);
 		loginFilter.setFilterProcessesUrl("/api/v1/user/dologin");
 		
 		String logoutURL = "/api/v1/user/dologout";

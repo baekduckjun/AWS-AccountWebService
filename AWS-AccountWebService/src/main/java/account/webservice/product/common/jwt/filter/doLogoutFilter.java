@@ -38,7 +38,7 @@ public class doLogoutFilter extends GenericFilterBean {
 
         //path and method verify
         String requestUri = request.getRequestURI();
-        if (!requestUri.matches("^\\/logout$")) {
+        if (!requestUri.matches("^.*\\/dologout$")) {
 
             filterChain.doFilter(request, response);
             return;
@@ -105,6 +105,16 @@ public class doLogoutFilter extends GenericFilterBean {
         Cookie cookie = new Cookie("refresh", null);
         cookie.setMaxAge(0);
         cookie.setPath("/");
+        
+        // 응답 body에 데이터 작성
+        String responseBody = ""
+        		+ "{"
+        		+	"\"status\": \"Success\","
+        		+ 	"\"result\": \"Success\""
+        		+ "}";
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+		response.getWriter().write(responseBody);
 
         response.addCookie(cookie);
         response.setStatus(HttpServletResponse.SC_OK);

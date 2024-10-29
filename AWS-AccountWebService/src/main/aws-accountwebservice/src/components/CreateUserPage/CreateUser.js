@@ -63,23 +63,22 @@ function CreateUser(props) {
   }
 
   {/** 휴대폰 인증 팝업 **/}
-  const [isVerifyPhonePopupOpen, setIsVerifyPhonePopupOpen] = useState(false);
-  const [isVerifyPhonePopupClosing, setIsVerifyPhonePopupClosing] = useState(false);
+  const [isVerifyPhonePopupOpen, setIsVerifyPhonePopupOpen] = useState(false);      // 팝업 실행 유무
+  const [isVerifyPhonePopupClosing, setIsVerifyPhonePopupClosing] = useState(false);// 팝업이 닫힐 시 애니메이션을 위한 먼저 true
 
-  const VerifyPhonePopupOpen = () => {
+  const verifyPhonePopupOpen = () => {
     setIsVerifyPhonePopupOpen(true);
     setIsVerifyPhonePopupClosing(false);
   };
 
-  const VerifyPhonePopupClose = () => {
-    setIsVerifyPhonePopupClosing(true); // 애니메이션 상태 활성화
+  const verifyPhonePopupClose = () => {
+    setIsVerifyPhonePopupClosing(true); // 팝업이 닫힐 시 애니메이션 실행 하기위한 먼저 true 
     setTimeout(() => {
       setIsVerifyPhonePopupOpen(false); // 애니메이션 후 팝업 닫기
     }, 300); // 애니메이션 시간
   };
 
   const popupRef = useRef(null);
-  // 콜백 함수 정의
   const getPopupRef = (ref) => {
     if (ref) {
       popupRef.current = ref; // ref가 유효할 때만 설정
@@ -88,22 +87,19 @@ function CreateUser(props) {
 
   useEffect(() => {
     // 팝업 외부 클릭 감지 함수
-    const handleClickOutside = (event) => {
+    const verifyPhonePopupOutSideClick = (event) => {
       if (isVerifyPhonePopupOpen && popupRef.current && !popupRef.current.contains(event.target)) {
-        setIsVerifyPhonePopupClosing(true); // 애니메이션 상태 활성화
-        setTimeout(() => {
-          setIsVerifyPhonePopupOpen(false); // 애니메이션 후 팝업 닫기
-        }, 300); // 애니메이션 시간
+        verifyPhonePopupClose();
       }
     };
     
     if (isVerifyPhonePopupOpen){
       document.body.classList.remove('scrollHidden');
       // 클릭 이벤트 리스너 추가
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("mousedown", verifyPhonePopupOutSideClick);
     }else{
       document.body.classList.add('scrollHidden');
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('mousedown', verifyPhonePopupOutSideClick);
     }
 
     if (isVerifyPhone) {
@@ -112,7 +108,7 @@ function CreateUser(props) {
 
     // 컴포넌트 언마운트 시 이벤트 리스너 제거
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("mousedown", verifyPhonePopupOutSideClick);
     };
   }, [isVerifyPhonePopupOpen]);
   {/** 휴대폰 인증 팝업 **/}
@@ -127,7 +123,7 @@ function CreateUser(props) {
     
     if ("" != userData.userID) {
       if ( !(isVerifyID && preUserID == userData.userID) ) {
-        Validation(validationMessages, setValidationMessages, 'userVerifyID', '', userData.userID);
+        Validation(validationMessages, setValidationMessages, 'userVerifyID', 'needVerifyID', userData.userID);
       } else {
         Validation(validationMessages, setValidationMessages, 'userVerifyID', 'available', userData.userID);
       }
@@ -149,7 +145,7 @@ function CreateUser(props) {
     setIsVerifyID(false);
 
     if ("" == userData.userID) {
-      Validation(validationMessages, setValidationMessages, 'userID', '', userData.userID);
+      Validation(validationMessages, setValidationMessages, 'userID', 'needVerifyID', userData.userID);
       return;
     } 
 
@@ -164,29 +160,31 @@ function CreateUser(props) {
       data: requestData,
       headers: {'Content-type': 'application/json'}
     }).then((res)=>{
-      let result = res.data;
-      let resultMessage = result.result;
-      let resultData = result.data;
+      const result = res.data;
+      const resultStatus = result.status;
+      const resultMessage = result.result;
+      const resultData = result.data;
+      
       // API로 부터 받은 데이터 출력
-      if ( resultMessage != 'Success') {
+      if ( resultStatus == 'Success') {
         if (resultMessage == 'Not Exsits') {
           setIsVerifyID(true);
           setPreUserID(userData.userID);
           Validation(validationMessages, setValidationMessages, 'userVerifyID', 'available', userData.userID);
         } else {
           setIsVerifyID(false);
-          alert(resultMessage);
+          Validation(validationMessages, setValidationMessages, 'userVerifyID', 'exists', userData.userID);
         }
       } else {
         setIsVerifyID(false);
-        Validation(validationMessages, setValidationMessages, 'userVerifyID', 'exists', userData.userID);
+        Validation(validationMessages, setValidationMessages, 'userVerifyID', 'server error', userData.userID);
       }
     }).catch(error=>{
         alert(error);
     });
   }
 
-  const createUserHandleSubmit = async (e) => {
+  const doCreateUser = async (e) => {
     e.preventDefault();
 
     Validation(validationMessages, setValidationMessages, 'userID', '', userData.userID);
@@ -227,17 +225,18 @@ function CreateUser(props) {
       // header에서 JSON 타입의 데이터라는 것을 명시
       headers: {'Content-type': 'application/json'}
     }).then((res)=>{
-      let result = res.data;
-      let resultMessage = result.result;
-      let resultData = result.data;
-      if ( resultMessage != 'Success') {
-        alert(resultMessage);
-      } else {
+      const result = res.data;
+      const resultStatus = result.status;
+      const resultMessage = result.result;
+      const resultData = result.data;
+      if ( resultStatus == 'Success') {
         alert("회원가입이 완료되었습니다.\n다시 로그인 해주세요.");
         navigate("/", { state: { isBack: true } });
+      } else {
+        alert(resultMessage);
       }
     }).catch(error=>{
-        alert(error);
+        alert("axios 서버 오류입니다.");
     });
   }
 
@@ -274,7 +273,7 @@ function CreateUser(props) {
                     setIsVerifyID(false);
                     Validation(validationMessages, setValidationMessages, 'userVerifyID', '', userData.userID);
                   }}
-                  onBlur={() => Validation(validationMessages, setValidationMessages, 'userID', '', userData.userID)}
+                  onBlur={() => Validation(validationMessages, setValidationMessages, 'userID', 'pass', userData.userID)}
               />
               <button type="button" className="verify-button" onClick={verifyID}>인증하기</button>
             </div>
@@ -284,7 +283,7 @@ function CreateUser(props) {
                 placeholder="비밀번호"
                 value={userData.userPWD}
                 onChange={(e) => setUserData({...userData, userPWD: e.target.value})}
-                onBlur={() => Validation(validationMessages, setValidationMessages, 'userPWD', '', userData.userPWD)}
+                onBlur={() => Validation(validationMessages, setValidationMessages, 'userPWD', 'pass', userData.userPWD)}
             />
             <div className='error-validation'>{validationMessages.userPWDValidationMessage}&nbsp;</div>
             <input
@@ -327,7 +326,7 @@ function CreateUser(props) {
               placeholder="이름 입력"
               value={userData.userName}
               onChange={(e) => setUserData({...userData, userName: e.target.value})}
-              onBlur={() => Validation(validationMessages, setValidationMessages, 'userName', '', userData.userName)}
+              onBlur={() => Validation(validationMessages, setValidationMessages, 'userName', 'pass', userData.userName)}
             />
             <div className='error-validation'>{validationMessages.userNameValidationMessage}&nbsp;</div>
             <div className='input-id'>
@@ -336,7 +335,7 @@ function CreateUser(props) {
                   value={userData.userPhone}
                   disabled
               />
-              <button onClick={VerifyPhonePopupOpen}>휴대폰 인증하기</button>
+              <button onClick={verifyPhonePopupOpen}>휴대폰 인증하기</button>
             </div>
               <div className={isVerifyPhone ? 'info-validation' : 'error-validation'}>{validationMessages.userPhoneValidationMessage}&nbsp;</div>
             <input
@@ -344,7 +343,7 @@ function CreateUser(props) {
               placeholder="이메일 주소 입력"
               value={userData.userEmail}
               onChange={(e) => setUserData({...userData, userEmail: e.target.value})}
-              onBlur={() => Validation(validationMessages, setValidationMessages, 'userEmail', '', userData.userEmail)}
+              onBlur={() => Validation(validationMessages, setValidationMessages, 'userEmail', 'pass', userData.userEmail)}
             />
             <div className='error-validation'>{validationMessages.userEmailValidationMessage}&nbsp;</div>
             <input
@@ -352,10 +351,10 @@ function CreateUser(props) {
               placeholder="별명 입력"
               value={userData.userAlias}
               onChange={(e) => setUserData({...userData, userAlias: e.target.value})}
-              onBlur={() => Validation(validationMessages, setValidationMessages, 'userAlias', '', userData.userAlias)}
+              onBlur={() => Validation(validationMessages, setValidationMessages, 'userAlias', 'pass', userData.userAlias)}
             />
             <div className='error-validation'>{validationMessages.userAliasValidationMessage}&nbsp;</div>
-            <button className="signup" onClick={createUserHandleSubmit}>회원 가입</button>
+            <button className="signup" onClick={doCreateUser}>회원 가입</button>
         </div>
       </div>
     );
@@ -386,7 +385,7 @@ function CreateUser(props) {
       {isVerifyPhonePopupOpen && (
         <VerifyPhonePopup
           isOpen={isVerifyPhonePopupOpen}
-          onClose={VerifyPhonePopupClose}
+          onClose={verifyPhonePopupClose}
           getRef = {getPopupRef}
           isVerifyPhonePopupClosing = {isVerifyPhonePopupClosing}
           userData = {userData}

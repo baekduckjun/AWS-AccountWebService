@@ -1,6 +1,8 @@
 package account.webservice.product.common.jwt;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,10 +23,12 @@ import jakarta.servlet.http.HttpServletResponse;
 public class JWTController {
 	private final JWTUtil jwtUtil;
 	private final JWTRefreshRepository jwtRefreshRepository;
-
-    public JWTController(JWTUtil jwtUtil, JWTRefreshRepository jwtRefreshRepository) {
+	private final JWTRefreshLogRepository jwtRefreshLogRepository;
+	
+    public JWTController(JWTUtil jwtUtil, JWTRefreshRepository jwtRefreshRepository, JWTRefreshLogRepository jwtRefreshLogRepository) {
         this.jwtUtil = jwtUtil;
         this.jwtRefreshRepository = jwtRefreshRepository;
+        this.jwtRefreshLogRepository = jwtRefreshLogRepository;
     }
 
     @PostMapping("/jwtrefresh")
@@ -34,43 +38,53 @@ public class JWTController {
         String refresh = null;
         Cookie[] cookies = request.getCookies();
         for (Cookie cookie : cookies) {
-
             if (cookie.getName().equals("refresh")) {
-
                 refresh = cookie.getValue();
             }
         }
 
         if (refresh == null) {
+        	//response status code
+        	Map<String, String> responseBody = new HashMap<>();
+            responseBody.put("status", "Success");
+            responseBody.put("result", "Refresh Token is Null");
 
-            //response status code
-            return new ResponseEntity<>("refresh token null", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(responseBody, HttpStatus.OK);
         }
 
         //expired check
         try {
             jwtUtil.isExpired(refresh);
         } catch (ExpiredJwtException e) {
-
-            //response status code
-            return new ResponseEntity<>("refresh token expired", HttpStatus.BAD_REQUEST);
+        	//response status code
+        	Map<String, String> responseBody = new HashMap<>();
+            responseBody.put("status", "Success");
+            responseBody.put("result", "Refresh Token Expired");
+        	
+            return new ResponseEntity<>(responseBody, HttpStatus.OK);
         }
 
         // 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
         String category = jwtUtil.getCategory(refresh);
 
         if (!category.equals("refresh")) {
-
-            //response status code
-            return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
+        	//response status code
+        	Map<String, String> responseBody = new HashMap<>();
+            responseBody.put("status", "Success");
+            responseBody.put("result", "Invalid Token Category");
+        	
+            return new ResponseEntity<>(responseBody, HttpStatus.OK);
         }
         
         //DB에 저장되어 있는지 확인
     	Boolean isExist = jwtRefreshRepository.existsByRefresh(refresh);
     	if (!isExist) {
+    		//response status code
+    		Map<String, String> responseBody = new HashMap<>();
+            responseBody.put("status", "Success");
+            responseBody.put("result", "Refresh Token DB Not Exist");
     		
-    		   //response body
-    		   return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
+    		return new ResponseEntity<>(responseBody, HttpStatus.OK);
     	}
 
         String username = jwtUtil.getUsername(refresh);
@@ -82,24 +96,21 @@ public class JWTController {
 
         //Refresh 토큰 저장 DB에 기존의 Refresh 토큰 삭제 후 새 Refresh 토큰 저장
     	jwtRefreshRepository.deleteByRefresh(refresh);
-    	addRefreshEntity(username, newRefresh, 86400000L);
+    	JWTRefreshEntity refreshEntity = jwtUtil.addRefreshEntity(username, newRefresh, 86400000L);
+    	JWTRefreshLogEntity refreshLogEntity = jwtUtil.addRefreshLogEntity(username, newRefresh, 86400000L);
+    	jwtRefreshRepository.save(refreshEntity);
+    	jwtRefreshLogRepository.save(refreshLogEntity);
         
         //response
         response.setHeader("access", newAccess);
         response.addCookie(jwtUtil.createCookie("refresh", newRefresh));
+        
+        // 성공 응답 생성
+        Map<String, String> responseBody = new HashMap<>();
+        responseBody.put("status", "Success");
+        responseBody.put("result", "Success");
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
     
-    private void addRefreshEntity(String userID, String refresh, Long expiredMs) {
-
-        Date date = new Date(System.currentTimeMillis() + expiredMs);
-
-        JWTRefreshEntity refreshEntity = new JWTRefreshEntity();
-        refreshEntity.setUserID(userID);
-        refreshEntity.setRefresh(refresh);
-        refreshEntity.setExpiration(date.toString());
-
-        jwtRefreshRepository.save(refreshEntity);
-    }
 }

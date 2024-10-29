@@ -140,7 +140,7 @@ function VerifyPhonePopup({ isOpen, onClose, getRef, isVerifyPhonePopupClosing, 
             placeholder="휴대폰 번호('-' 제외)"
             value={userData.userPhone}
             onChange={(e) => setUserData({...userData, userPhone: e.target.value})}
-            onBlur={() => Validation(validationMessages, setValidationMessages, 'userPhone', '', userData.userPhone)}
+            onBlur={() => Validation(validationMessages, setValidationMessages, 'userPhone', 'pass', userData.userPhone)}
           />
           <button onClick={senddingPhone} disabled={sendingPhone}>
             인증 번호 전송

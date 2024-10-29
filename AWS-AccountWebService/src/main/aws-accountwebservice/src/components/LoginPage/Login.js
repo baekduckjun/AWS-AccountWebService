@@ -38,7 +38,7 @@ function Login(props) {
     navigate("/components/CreateUserPage/CreateUser");
   }
   
-  const loginHandleSubmit = async (e) => {
+  const doLogin = async (e) => {
     e.preventDefault();
     
     Validation(validationMessages, setValidationMessages, 'userID', '', userData.userID);
@@ -61,22 +61,22 @@ function Login(props) {
       headers: {'Content-type': 'application/json'},
       withCredentials: true // CROS true
     }).then((res)=>{
-      let result = res.data;
-      let resultMessage = result.result;
-      let resultData = result.data;
-      if (resultMessage != 'Success') {
-        alert(resultMessage);
-      } else {
-        const accessToken = res.headers.get('Access');
-        if (accessToken) {
-          localStorage.setItem('accessToken', accessToken);
+      const result = res.data;
+      const resultStatus = result.status;
+      const resultMessage = result.result;
+      const resultData = result.data;
+      if (resultStatus == 'Success') {
+        if (resultMessage == 'Success') {
+          const accessToken = res.headers.get('access');
+          if (accessToken) {
+            localStorage.setItem('access', accessToken);
+          }
+          navigate("/components/MainPage/Main");
+        } else if (resultMessage = 'Fail'){
+          alert(resultMessage);
         }
-        navigate("/components/MainPage/Main");
-        // API로 부터 받은 데이터 출력
-        //setMemberID(resultData.memberID);
-        //setMemberName(resultData.memberName);
-        //setMemberEmail(resultData.memberEmail);
-        //setStatus('complelte');
+      } else {
+        alert(resultMessage);
       }
     }).catch(error=>{
         alert(error);
@@ -90,7 +90,7 @@ function Login(props) {
           <img src="loginLogo.jpg"></img>
         </div>
         <div className="container">
-          <form onSubmit={loginHandleSubmit}>
+          <form onSubmit={doLogin}>
             <input
               type="text"
               placeholder="✉ 사용자 아이디 또는 이메일 주소"

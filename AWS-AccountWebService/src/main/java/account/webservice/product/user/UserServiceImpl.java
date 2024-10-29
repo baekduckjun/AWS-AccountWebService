@@ -19,10 +19,12 @@ public class UserServiceImpl implements UserService, UserDetailsService{
 
     @Autowired
     private UserRepository userRepository;
+    private final EncryptionUtil encryptionUtil;
     private final Logger log = LoggerFactory.getLogger(getClass());
     
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, EncryptionUtil encryptionUtil) {
         this.userRepository = userRepository;
+        this.encryptionUtil = encryptionUtil;
     }
     
     @Override
@@ -38,14 +40,13 @@ public class UserServiceImpl implements UserService, UserDetailsService{
         */
     	
     	if (findByUserID(userDTO.getUserID()) == null) {
-	    	EncryptionUtil encrypt = new EncryptionUtil();
 	    	String userKey = "";
 	    	String encryptUserPWD = "";
 	    	String userPWD = userDTO.getUserPWD();
 	    	String regDate = DateTimeUtil.getCurrentTimeyymmddhhmmss();
 	    	try {
-				userKey = encrypt.AESEncrypt(userDTO.getUserID()+regDate);
-				encryptUserPWD = encrypt.EncryptSHA256(userPWD);
+				userKey = encryptionUtil.AESEncrypt(userDTO.getUserID()+regDate);
+				encryptUserPWD = encryptionUtil.EncryptSHA256(userPWD);
 			} catch (Exception e) {
 				log.error("error = {}", e);
 			}

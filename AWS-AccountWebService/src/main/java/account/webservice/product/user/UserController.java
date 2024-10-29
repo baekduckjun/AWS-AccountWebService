@@ -37,15 +37,18 @@ public class UserController {
 	    	String createUserResult = userService.createUser(userDTO);
 	    	log.info("createUserResult = {}", createUserResult);
 	    	if ("Success".equals(createUserResult)) {
+	    		response.put("status", "Success");
 	    		response.put("result", "Success");
 	            response.put("data", createUserResult);
 	    	} else {
+	    		response.put("status", "Success");
 	    		response.put("result", "Exists");
 	            response.put("data", createUserResult);
 	    	}
 	    	
 	        return ResponseEntity.ok(response);
     	} catch (Exception e){
+    		response.put("status", "Error");
     		response.put("result", "Service Error");
 			response.put("data", e);
 			return ResponseEntity.ok(response);
@@ -59,15 +62,19 @@ public class UserController {
     		userDTO = encryptionUtil.DecryptUser(userDTO);
     		String userID = userDTO.getUserID();
 			UserDTO findByUserIDResult = userService.findByUserID(userID);
-	        
+			
+			findByUserIDResult = encryptionUtil.EncryptUser(findByUserIDResult, "userPWD");
 	        if (findByUserIDResult == null) {
+	        	response.put("status", "Success");
 	        	response.put("result", "Not Exsits");
 	        } else {
-	        	response.put("result", "Success");
+	        	response.put("status", "Success");
+	        	response.put("result", "Exsits");
 	            response.put("data", findByUserIDResult);
 	        }
 	        return ResponseEntity.ok(response);
 		} catch (Exception e) {
+			response.put("status", "Error");
 			response.put("result", "Service Error");
 			response.put("data", e);
 			return ResponseEntity.ok(response);
@@ -84,13 +91,16 @@ public class UserController {
 			
 			findByUserIDResult = encryptionUtil.EncryptUser(findByUserIDResult, "userPWD");
 	        if (findByUserIDResult == null) {
+	        	response.put("status", "Success");
 	        	response.put("result", "Not Exsits");
 	        } else {
+	        	response.put("status", "Success");
 	        	response.put("result", "Success");
 	            response.put("data", findByUserIDResult);
 	        }
 	        return ResponseEntity.ok(response);
 		} catch (Exception e) {
+			response.put("status", "Error");
 			response.put("result", "Service Error");
 			response.put("data", e);
 			return ResponseEntity.ok(response);
@@ -124,18 +134,22 @@ public class UserController {
 	    	UserDTO loginmember = userService.doLogin(DecryptuserDTO);
 	        
 	        if (loginmember == null) {
+	        	response.put("status", "Success");
 	        	response.put("result", "Not Exists userID");
 	        } else {
 	        	// 비밀번호가 맞는지 체크
 	        	if (userPWD.equals(loginmember.getUserPWD())) {
+	        		response.put("status", "Success");
 	        		response.put("result", "Success");
 	                response.put("data", loginmember);
 	        	} else {
+	        		response.put("status", "Success");
 	        		response.put("result", "Not Exists memberPWD");
 	        	}
 	        }
 	        return ResponseEntity.ok(response);
 		} catch (Exception e) {
+			response.put("status", "Error");
 			response.put("result", "Service Error");
 			response.put("data", e);
 			return ResponseEntity.ok(response);
