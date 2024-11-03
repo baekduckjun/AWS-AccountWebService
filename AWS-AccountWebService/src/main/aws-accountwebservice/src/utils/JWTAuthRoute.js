@@ -9,22 +9,28 @@ const isAuthenticated = () => {
 };
 
 // 인증 체크 컴포넌트
-export const JWTAuthRoute = ({ children }) => {
+export const JWTAuthRoute = ({ children , loginType}) => {
     const navigate = useNavigate();
     const [alertShown, setAlertShown] = useState(false);
 
     useEffect(() => {
-        if (!isAuthenticated()) {
-            if (!alertShown) {
-                alert("로그인 하고 이용해주세요");
-                setAlertShown(true); // alert가 보여졌음을 기록
+        if (loginType == "login") {
+            if (!isAuthenticated()) {
+                if (!alertShown) {
+                    alert("로그인 하고 이용해주세요");
+                    setAlertShown(true); // alert가 보여졌음을 기록
+                }
+                navigate("/");
             }
-            navigate("/");
+        } else {
+            if (isAuthenticated()) {
+                navigate("/components/MainPage/Main");
+            }
         }
     }, [navigate, alertShown]);
 
     // 인증된 경우 자식 컴포넌트를 렌더링
-    return isAuthenticated() ? children : null;
+    return isAuthenticated() && loginType=="login" ? children : !isAuthenticated() && loginType=="notLogin" ? children : null;
 };
 
 export default JWTAuthRoute;

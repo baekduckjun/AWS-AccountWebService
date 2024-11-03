@@ -40,7 +40,9 @@ function AnimatedRoutes() {
               exit="exit"
               variants={transition}
             >
-              <Login />
+              <JWTAuthRoute loginType="notLogin">
+                <Login />
+              </JWTAuthRoute>
             </motion.div>
           }
         />
@@ -54,7 +56,9 @@ function AnimatedRoutes() {
               exit="exit"
               variants={transition}
             >
-              <CreateUser />
+              <JWTAuthRoute loginType="notLogin">
+                <CreateUser />
+              </JWTAuthRoute>
             </motion.div>
           }
         />
@@ -68,7 +72,9 @@ function AnimatedRoutes() {
               exit="exit"
               variants={transition}
             >
-              <CreateUserAccountLink />
+              <JWTAuthRoute loginType="notLogin">
+                <CreateUserAccountLink />
+              </JWTAuthRoute>
             </motion.div>
           }
         />
@@ -82,7 +88,9 @@ function AnimatedRoutes() {
               exit="exit"
               variants={transition}
             >
-              <CreateUser />
+              <JWTAuthRoute loginType="notLogin">
+                <CreateUser />
+              </JWTAuthRoute>
             </motion.div>
           }
         />
@@ -96,7 +104,7 @@ function AnimatedRoutes() {
               exit="exit"
               variants={transition}
             >
-              <JWTAuthRoute>
+              <JWTAuthRoute loginType="login">
                 <Main />
               </JWTAuthRoute>
             </motion.div>
