@@ -5,7 +5,11 @@ import { useNavigate } from 'react-router-dom';
 const isAuthenticated = () => {
     const token = localStorage.getItem('access');
     // 토큰이 유효한지 간단히 확인하는 로직
-    return token !== null;
+    if (token == null) 
+        return null;
+    else
+        return token;
+    //수정해야함
 };
 
 // 인증 체크 컴포넌트

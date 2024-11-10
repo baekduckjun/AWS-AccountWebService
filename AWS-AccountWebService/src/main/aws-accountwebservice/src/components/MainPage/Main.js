@@ -7,7 +7,7 @@ import Logout from 'components/MainPage/Logout';
 
 import { Validation } from 'utils/Validation'; // utile.js 파일을 가져옴
 import { Cryption } from 'utils/Cryption'; // utile.js 파일을 가져옴
-import {GoJWTRefresh} from 'utils/GoJWTRefresh'; // utile.js 파일을 가져옴
+import {DoJWTRefresh} from 'utils/DoJWTRefresh'; // utile.js 파일을 가져옴
 
 function doGetUserInfo(userID) {
 
@@ -39,7 +39,8 @@ function doGetUserInfo(userID) {
         if (resultMessage == 'Success') {
           return Cryption('decrypt', resultData);
         } else if (resultMessage == 'Access Token Expired') {
-          await GoJWTRefresh();
+          alert(resultMessage);
+          await DoJWTRefresh();
         }
       } else {
         alert(resultMessage);

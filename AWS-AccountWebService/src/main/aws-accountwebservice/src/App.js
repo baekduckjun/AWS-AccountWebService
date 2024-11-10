@@ -8,6 +8,7 @@ import CreateUser from 'components/CreateUserPage/CreateUser';
 import CreateUserAccountLink from 'components/CreateUserPage/CreateUserAccountLink';
 import {JWTAuthRoute} from 'utils/JWTAuthRoute'; // utile.js 파일을 가져옴
 import Main from 'components/MainPage/Main';
+import {DoAccountAuthorize} from 'utils/DoAccountAuthorize';
 
 const nextTransition = {
   initial: { opacity: 0, x: 100 },   // 오른쪽에서 시작
@@ -106,6 +107,22 @@ function AnimatedRoutes() {
             >
               <JWTAuthRoute loginType="login">
                 <Main />
+              </JWTAuthRoute>
+            </motion.div>
+          }
+        />
+        {/* 오픈뱅킹 API 인증 후 리다이렉션 */}
+        <Route
+          path="/utils/DoAccountAuthorize"
+          element={
+            <motion.div
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              variants={transition}
+            >
+              <JWTAuthRoute loginType="login">
+                <DoAccountAuthorize />
               </JWTAuthRoute>
             </motion.div>
           }

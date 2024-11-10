@@ -5,7 +5,7 @@ import axios from "axios";
 
 import { Validation } from 'utils/Validation'; // utile.js 파일을 가져옴
 import { Cryption } from 'utils/Cryption'; // utile.js 파일을 가져옴
-import {GoJWTRefresh} from 'utils/GoJWTRefresh'; // utile.js 파일을 가져옴
+import {DoJWTRefresh} from 'utils/DoJWTRefresh'; // utile.js 파일을 가져옴
 
 function Logout(props) {
   const navigate = useNavigate();

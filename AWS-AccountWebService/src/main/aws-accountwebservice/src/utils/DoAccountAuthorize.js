@@ -1,12 +1,22 @@
+import { useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import queryString from "query-string";
 import axios from "axios";
 //import { useNavigate } from "react-router-dom";
 
-export const GoJWTRefresh = () => {
-  //const navigate = useNavigate();
+export function DoAccountAuthorize() {
+  const navigate = useNavigate();
+  const queryParams = useLocation().search;
+  const parsed = queryString.parse(queryParams);
+  const code = parsed.code;
+  const scope = parsed.scope;
+  const client_info = parsed.client_info;
+  const state = parsed.state;
 
-  let url = process.env.REACT_APP_DOMAIN + process.env.REACT_APP_URL + '/jwtrefresh';
 
-  const JWTRefresh = async () => {
+  let url = process.env.REACT_APP_DOMAIN + process.env.REACT_APP_ACCOUNT_URL + '/account/authorize';
+debugger;
+  const AccountAuthorize = async () => {
   try {
       const res = await axios({
         method: "POST",
@@ -41,5 +51,7 @@ export const GoJWTRefresh = () => {
     }
   };
   
-  return JWTRefresh();
+  return AccountAuthorize();
 };
+
+export default DoAccountAuthorize;
