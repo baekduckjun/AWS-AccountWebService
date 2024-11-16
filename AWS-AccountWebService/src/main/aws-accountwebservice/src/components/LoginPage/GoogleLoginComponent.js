@@ -48,7 +48,7 @@ function GoogleCreateUser(data) {
         try {
             const res = await axios({
                 method: "POST",
-                url: process.env.REACT_APP_DOMAIN + process.env.REACT_APP_USER_URL + '/findbyid',
+                url: process.env.REACT_APP_DOMAIN+"/"+process.env.REACT_APP_USER_URL + '/findbyid',
                 data: requestData,
                 headers: { 'Content-type': 'application/json' }
             });
@@ -84,7 +84,7 @@ function doLogin(data) {
     };
     const requestData = Cryption('encrypt', resultData);
 
-    let url = process.env.REACT_APP_DOMAIN + process.env.REACT_APP_USER_URL+'/dologin';
+    let url = process.env.REACT_APP_DOMAIN+"/"+process.env.REACT_APP_USER_URL+'/dologin';
     const login = async () => {
         try {
             const res = await axios({

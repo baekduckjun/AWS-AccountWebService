@@ -19,7 +19,7 @@ function Logout(props) {
     };
     const requestData = Cryption('encrypt', resultData);
     
-    let url = process.env.REACT_APP_DOMAIN + process.env.REACT_APP_USER_URL+'/dologout';
+    let url = process.env.REACT_APP_DOMAIN+"/"+process.env.REACT_APP_USER_URL+'/dologout';
     const logout = async () => {
       try {
         const res = await axios({

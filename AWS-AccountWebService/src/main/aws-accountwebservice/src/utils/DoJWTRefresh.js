@@ -4,7 +4,7 @@ import axios from "axios";
 export const DoJWTRefresh = () => {
   //const navigate = useNavigate();
 
-  let url = process.env.REACT_APP_DOMAIN + process.env.REACT_APP_URL + '/jwtrefresh';
+  let url = process.env.REACT_APP_DOMAIN+""+process.env.REACT_APP_URL + '/jwtrefresh';
 
   const JWTRefresh = async () => {
   try {
@@ -28,6 +28,9 @@ export const DoJWTRefresh = () => {
           const accessToken = res.headers.get('access');
           if (accessToken) {
             localStorage.setItem('access', accessToken);
+            const newWindow = window.open("", "_self");
+            let url = process.env.REACT_LOCAL_DOMAIN+'/components/MainPage/Main';
+            newWindow.location.href = url;
           }
         } else if (resultMessage == 'Refresh Token Expired') {
           alert('세션이 만료되었습니다.\n다시 로그인 하여 주세요.');
@@ -37,7 +40,7 @@ export const DoJWTRefresh = () => {
         alert(resultMessage);
       }
     } catch(error){
-      alert(error);
+      alert("DoJWTRefresh = "+error);
     }
   };
   

@@ -136,7 +136,7 @@ function CreateUserAccountLink(props) {
 
     axios({
       method: "POST",
-      url: process.env.REACT_APP_DOMAIN + process.env.REACT_APP_USER_URL+'/create',
+      url: process.env.REACT_APP_DOMAIN+"/"+process.env.REACT_APP_USER_URL+'/create',
       data: requestData,
       // header에서 JSON 타입의 데이터라는 것을 명시
       headers: {'Content-type': 'application/json'}

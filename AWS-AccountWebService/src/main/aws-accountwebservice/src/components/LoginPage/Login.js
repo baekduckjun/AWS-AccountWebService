@@ -52,7 +52,7 @@ function Login(props) {
     };
     const requestData = Cryption('encrypt', resultData);
 
-    let url = process.env.REACT_APP_DOMAIN + process.env.REACT_APP_USER_URL+'/dologin';
+    let url = process.env.REACT_APP_DOMAIN+"/"+process.env.REACT_APP_USER_URL+'/dologin';
     await axios({
       method: "POST",
       url: url,
