@@ -4,7 +4,7 @@ import axios from "axios";
 export const DoJWTRefresh = () => {
   //const navigate = useNavigate();
 
-  let url = process.env.REACT_APP_DOMAIN+""+process.env.REACT_APP_URL + '/jwtrefresh';
+  let url = process.env.REACT_APP_DOMAIN+"/"+process.env.REACT_APP_URL + '/jwtrefresh';
 
   const JWTRefresh = async () => {
   try {

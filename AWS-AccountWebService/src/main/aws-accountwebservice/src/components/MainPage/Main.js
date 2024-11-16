@@ -16,7 +16,7 @@ function doGetUserInfo(userID) {
   };
   const requestData = Cryption('encrypt', resultData);
   
-  let url = process.env.REACT_APP_DOMAIN + process.env.REACT_APP_USER_URL+'/getuserinfo';
+  let url = process.env.REACT_APP_DOMAIN+"/"+process.env.REACT_APP_USER_URL+'/getuserinfo';
   const getUserInfo = async () => {
     try {
       const res = await axios({
@@ -39,7 +39,6 @@ function doGetUserInfo(userID) {
         if (resultMessage == 'Success') {
           return Cryption('decrypt', resultData);
         } else if (resultMessage == 'Access Token Expired') {
-          alert(resultMessage);
           await DoJWTRefresh();
         }
       } else {

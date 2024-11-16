@@ -14,7 +14,7 @@ export function DoAccountAuthorize() {
   const state = parsed.state;
 
 
-  let url = process.env.REACT_APP_DOMAIN+""+process.env.REACT_APP_ACCOUNT_URL + '/account/authorize';
+  let url = process.env.REACT_APP_DOMAIN+"/"+process.env.REACT_APP_ACCOUNT_URL + '/account/authorize';
 debugger;
   const AccountAuthorize = async () => {
   try {
