@@ -142,8 +142,11 @@ function GoogleLoginComponent(props) {
                         };
                         
                         const result = await doLogin(resultData);
-                        if ("Success" == result)
-                          navigate("/components/MainPage/Main");
+                        if ("Success" == result) {
+                            navigate("/components/MainPage/Main", {
+                                state: { userID: googleResult.email }
+                            });
+                        }
                     }
                 }}
                 onFailure={(err) => {

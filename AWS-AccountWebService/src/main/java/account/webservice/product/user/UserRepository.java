@@ -13,4 +13,5 @@ public interface UserRepository extends JpaRepository<UserEntity, String> {
 	
 	@Query(value = "SELECT * FROM aws_users_tb WHERE userID = ?1", nativeQuery = true)
 	Optional<UserEntity> findByUserID(String userID);
+	
 }

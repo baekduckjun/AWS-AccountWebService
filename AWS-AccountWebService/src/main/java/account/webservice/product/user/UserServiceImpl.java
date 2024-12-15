@@ -95,6 +95,7 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     	}
     }
 
+    @Override
     public UserDTO findByUserID(String userID) {
         Optional<UserEntity> userEntityOptional = userRepository.findByUserID(userID);
         
@@ -122,6 +123,33 @@ public class UserServiceImpl implements UserService, UserDetailsService{
 
 		return null;
 	}
+	
+	@Override
+    public String accountSign(String userID) {
+        Optional<UserEntity> userEntityOptional = userRepository.findByUserID(userID);
+        
+        UserDTO userDTO = userEntityOptional.map(UserDTO::toUserDTO).orElse(null);
+        UserEntity userEntity = UserEntity.builder()
+    			.userKey(userDTO.getUserKey())
+    			.userID(userDTO.getUserID())
+    			.userPWD(userDTO.getUserPWD())
+    			.userName(userDTO.getUserName())
+    			.userEmail(userDTO.getUserEmail())
+    			.userAlias(userDTO.getUserAlias())
+    			.userType(userDTO.getUserType())
+    			.regDate(userDTO.getRegDate())
+    			.userAccountLink(userDTO.getUserAccountLink())
+    			.isRegAccount("Y")
+    			.build();
+        
+        UserEntity savedEntity = null;
+        savedEntity = userRepository.save(userEntity);
+        
+        if (savedEntity != null)
+        	return "Success";
+        else
+        	return "Fail";
+    }
     
     /*
     public UserDTO getMemberById(Long id) {

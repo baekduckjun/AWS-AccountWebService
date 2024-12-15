@@ -52,23 +52,51 @@ function doGetUserInfo(userID) {
   return getUserInfo();
 }
 
-const openBankingAutorize = () => {
-  const newWindow = window.open("", "_self");
+function doGetAccountInfo(userID) {
 
-  let url = 'https://testapi.openbanking.or.kr/oauth/2.0/authorize'
-    +'?response_type=code'
-    +'&client_id='+process.env.REACT_APP_OPENBANKING_CLIENTID
-    +'&redirect_uri=http://localhost:3000/components/MainPage/Main'
-    +'&scope=login inquiry transfer'
-    +'&client_info=test'
-    +'&state=b80BLsfigm9OokPTjy03elbJqRHOfGSY'
-    +'&auth_type=0';
+  const resultData = {
+    userID : userID,
+  };
+  const requestData = Cryption('encrypt', resultData);
+  
+  let url = process.env.REACT_APP_DOMAIN+"/"+process.env.REACT_APP_ACCOUNT_URL+'/getaccountinfo';
+  const getAccountInfo = async () => {
+    try {
+      const res = await axios({
+        method: "POST",
+        url: url,
+        data: requestData,
+        // header에서 JSON 타입의 데이터라는 것을 명시
+        headers: {
+          'Content-type': 'application/json',
+          'access': localStorage.getItem('access')
+        },
+        withCredentials: true // CROS true
+      });
 
-  newWindow.location.href = url;
-};
+      const result = res.data;
+      const resultStatus = result.status;
+      const resultMessage = result.result;
+      const resultData = result.data;
+      if (resultStatus == 'Success') {
+        if (resultMessage == 'Success') {
+          return Cryption('decrypt', resultData);
+        } else if (resultMessage == 'Access Token Expired') {
+          await DoJWTRefresh();
+        }
+      } else {
+        alert(resultMessage);
+      }
+    } catch(error){
+      alert(error);
+    }
+  };
+
+  return getAccountInfo();
+}
 
 function Main(props) {
-
+  const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
 
   // 비동기 함수를 사용하여 데이터를 가져오는 함수
@@ -82,6 +110,28 @@ function Main(props) {
   }, []); // 빈 배열을 두 번째 인자로 주어 마운트 시 한 번만 실행
   
   let mainContents = [];
+
+  const openBankingAutorize = () => {
+    const newWindow = window.open("", "_self");
+  
+    if (process.env.REACT_APP_OPENBANKING_TEST == 'Y') {
+      navigate("/components/SignAccountPage/SignAccount", {
+        state: { userID: userData.userID }
+      });
+  
+    } else {
+      let url = 'https://testapi.openbanking.or.kr/oauth/2.0/authorize'
+      +'?response_type=code'
+      +'&client_id='+process.env.REACT_APP_OPENBANKING_CLIENTID
+      +'&redirect_uri='+process.env.REACT_APP_DOMAIN+'/'+process.env.REACT_APP_ACCOUNT_URL+'/authorize'
+      +'&scope=login inquiry transfer'
+      +'&client_info=test'
+      +'&state=b80BLsfigm9OokPTjy03elbJqRHOfGSY'
+      +'&auth_type=1';
+  
+      newWindow.location.href = url;
+    }
+  };
 
   if (userData) {
     mainContents.push(

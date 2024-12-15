@@ -8,6 +8,7 @@ import CreateUser from 'components/CreateUserPage/CreateUser';
 import CreateUserAccountLink from 'components/CreateUserPage/CreateUserAccountLink';
 import {JWTAuthRoute} from 'utils/JWTAuthRoute'; // utile.js 파일을 가져옴
 import Main from 'components/MainPage/Main';
+import SignAccount from 'components/SignAccountPage/SignAccount';
 import {DoAccountAuthorize} from 'utils/DoAccountAuthorize';
 
 const nextTransition = {
@@ -107,6 +108,22 @@ function AnimatedRoutes() {
             >
               <JWTAuthRoute loginType="login">
                 <Main />
+              </JWTAuthRoute>
+            </motion.div>
+          }
+        />
+        {/* 계좌 등록 테스트 페이지 */}
+        <Route
+          path="/components/SignAccountPage/SignAccount"
+          element={
+            <motion.div
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              variants={transition}
+            >
+              <JWTAuthRoute loginType="login">
+                <SignAccount />
               </JWTAuthRoute>
             </motion.div>
           }

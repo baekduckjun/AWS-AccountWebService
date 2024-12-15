@@ -37,80 +37,89 @@ public class JWTController {
         //get refresh token
         String refresh = null;
         Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equals("refresh")) {
-                refresh = cookie.getValue();
-            }
-        }
+        if (cookies != null) {
+	        for (Cookie cookie : cookies) {
+	            if (cookie.getName().equals("refresh")) {
+	                refresh = cookie.getValue();
+	            }
+	        }
+	
+	        if (refresh == null) {
+	        	//response status code
+	        	Map<String, String> responseBody = new HashMap<>();
+	            responseBody.put("status", "Success");
+	            responseBody.put("result", "Refresh Token is Null");
+	
+	            return new ResponseEntity<>(responseBody, HttpStatus.OK);
+	        }
+	
+	        //expired check
+	        try {
+	            jwtUtil.isExpired(refresh);
+	        } catch (ExpiredJwtException e) {
+	        	//response status code
+	        	Map<String, String> responseBody = new HashMap<>();
+	            responseBody.put("status", "Success");
+	            responseBody.put("result", "Refresh Token Expired");
+	        	
+	            return new ResponseEntity<>(responseBody, HttpStatus.OK);
+	        }
+	
+	        // 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
+	        String category = jwtUtil.getCategory(refresh);
+	
+	        if (!category.equals("refresh")) {
+	        	//response status code
+	        	Map<String, String> responseBody = new HashMap<>();
+	            responseBody.put("status", "Success");
+	            responseBody.put("result", "Invalid Token Category");
+	        	
+	            return new ResponseEntity<>(responseBody, HttpStatus.OK);
+	        }
+	        
+	        //DB에 저장되어 있는지 확인
+	    	Boolean isExist = jwtRefreshRepository.existsByRefresh(refresh);
+	    	if (!isExist) {
+	    		//response status code
+	    		Map<String, String> responseBody = new HashMap<>();
+	            responseBody.put("status", "Success");
+	            responseBody.put("result", "Refresh Token DB Not Exist");
+	    		
+	    		return new ResponseEntity<>(responseBody, HttpStatus.OK);
+	    	}
+	
+	        String username = jwtUtil.getUsername(refresh);
+	        String role = jwtUtil.getRole(refresh);
+	
+	        //make new JWT
+	        String newAccess = jwtUtil.createJwt("access", username, role, 600000L);
+	        String newRefresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
+	
+	        //Refresh 토큰 저장 DB에 기존의 Refresh 토큰 삭제 후 새 Refresh 토큰 저장
+	    	jwtRefreshRepository.deleteByRefresh(refresh);
+	    	JWTRefreshEntity refreshEntity = jwtUtil.addRefreshEntity(username, newRefresh, 86400000L);
+	    	JWTRefreshLogEntity refreshLogEntity = jwtUtil.addRefreshLogEntity(username, newRefresh, 86400000L);
+	    	jwtRefreshRepository.save(refreshEntity);
+	    	jwtRefreshLogRepository.save(refreshLogEntity);
+	    	
+	    	 //response
+	        response.setHeader("access", newAccess);
+	        response.addCookie(jwtUtil.createCookie("refresh", newRefresh));
+	        
+	        // 성공 응답 생성
+	        Map<String, String> responseBody = new HashMap<>();
+	        responseBody.put("status", "Success");
+	        responseBody.put("result", "Success");
 
-        if (refresh == null) {
-        	//response status code
-        	Map<String, String> responseBody = new HashMap<>();
+	        return new ResponseEntity<>(responseBody, HttpStatus.OK);
+        } else {
+        	//response
+            Map<String, String> responseBody = new HashMap<>();
             responseBody.put("status", "Success");
-            responseBody.put("result", "Refresh Token is Null");
+            responseBody.put("result", "Cookie is null");
 
             return new ResponseEntity<>(responseBody, HttpStatus.OK);
         }
-
-        //expired check
-        try {
-            jwtUtil.isExpired(refresh);
-        } catch (ExpiredJwtException e) {
-        	//response status code
-        	Map<String, String> responseBody = new HashMap<>();
-            responseBody.put("status", "Success");
-            responseBody.put("result", "Refresh Token Expired");
-        	
-            return new ResponseEntity<>(responseBody, HttpStatus.OK);
-        }
-
-        // 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
-        String category = jwtUtil.getCategory(refresh);
-
-        if (!category.equals("refresh")) {
-        	//response status code
-        	Map<String, String> responseBody = new HashMap<>();
-            responseBody.put("status", "Success");
-            responseBody.put("result", "Invalid Token Category");
-        	
-            return new ResponseEntity<>(responseBody, HttpStatus.OK);
-        }
-        
-        //DB에 저장되어 있는지 확인
-    	Boolean isExist = jwtRefreshRepository.existsByRefresh(refresh);
-    	if (!isExist) {
-    		//response status code
-    		Map<String, String> responseBody = new HashMap<>();
-            responseBody.put("status", "Success");
-            responseBody.put("result", "Refresh Token DB Not Exist");
-    		
-    		return new ResponseEntity<>(responseBody, HttpStatus.OK);
-    	}
-
-        String username = jwtUtil.getUsername(refresh);
-        String role = jwtUtil.getRole(refresh);
-
-        //make new JWT
-        String newAccess = jwtUtil.createJwt("access", username, role, 600000L);
-        String newRefresh = jwtUtil.createJwt("refresh", username, role, 86400000L);
-
-        //Refresh 토큰 저장 DB에 기존의 Refresh 토큰 삭제 후 새 Refresh 토큰 저장
-    	jwtRefreshRepository.deleteByRefresh(refresh);
-    	JWTRefreshEntity refreshEntity = jwtUtil.addRefreshEntity(username, newRefresh, 86400000L);
-    	JWTRefreshLogEntity refreshLogEntity = jwtUtil.addRefreshLogEntity(username, newRefresh, 86400000L);
-    	jwtRefreshRepository.save(refreshEntity);
-    	jwtRefreshLogRepository.save(refreshLogEntity);
-        
-        //response
-        response.setHeader("access", newAccess);
-        response.addCookie(jwtUtil.createCookie("refresh", newRefresh));
-        
-        // 성공 응답 생성
-        Map<String, String> responseBody = new HashMap<>();
-        responseBody.put("status", "Success");
-        responseBody.put("result", "Success");
-
-        return new ResponseEntity<>(responseBody, HttpStatus.OK);
     }
     
 }

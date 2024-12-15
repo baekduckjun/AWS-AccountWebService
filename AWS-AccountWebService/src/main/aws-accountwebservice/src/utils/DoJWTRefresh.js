@@ -29,13 +29,24 @@ export const DoJWTRefresh = () => {
           if (accessToken) {
             localStorage.setItem('access', accessToken);
             const newWindow = window.open("", "_self");
-            let url = process.env.REACT_LOCAL_DOMAIN+'/components/MainPage/Main';
+            //let url = "http://"+process.env.REACT_LOCAL_DOMAIN+'/components/MainPage/Main';
+            let url = '/components/MainPage/Main';
             newWindow.location.href = url;
           }
         } else if (resultMessage == 'Refresh Token Expired') {
           alert('세션이 만료되었습니다.\n다시 로그인 하여 주세요.');
+          localStorage.removeItem('access');
+          const newWindow = window.open("", "_self");
+          let url = '/';
+          newWindow.location.href = url;
           //navigate("/", { state: { isBack: true } });
-        } 
+        } else if (resultMessage == 'Cookie is null') {
+          alert('세션이 만료되었습니다.\n다시 로그인 하여 주세요.');
+          localStorage.removeItem('access');
+          const newWindow = window.open("", "_self");
+          let url = '/';
+          newWindow.location.href = url;
+        }
       } else {
         alert(resultMessage);
       }
