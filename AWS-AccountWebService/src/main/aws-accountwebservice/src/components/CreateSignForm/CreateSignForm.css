@@ -1,0 +1,282 @@
+@charset "UTF-8";
+
+.createuser_container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 5vh; /* 상단 여백 비율 설정 */
+    width: 30vw; /* 너비 30% 설정 */
+    max-width: 90vw; /* 최대 너비 설정 */
+}
+
+.createuser_container .logo {
+    margin-bottom: 2vh; /* 상단 텍스트와 컨테이너 사이의 간격 비율 설정 */
+    width: 100%; /* 부모 요소에 맞게 조정 */
+    max-width: 17vw; /* 최대 너비 설정 */
+    text-align: center; /* 중앙 정렬 */
+}
+
+.createuser_container .logo img {
+    max-width: 100%; /* 부모 컨테이너에 맞게 조정 */
+    height: auto; /* 비율을 유지하며 높이 자동 조정 */
+}
+
+.createuser_container .container {
+    text-align: center;
+    background-color: white;
+    padding: 2vw; /* 패딩을 비율로 설정 */
+    border-radius: 1vw;
+    box-shadow: 0 1vw 3vw rgba(24, 199, 205, 0.1);
+    margin-top: 2vh; /* 상단 텍스트와 컨테이너 사이 간격 비율 설정 */
+    width: 100%; /* 너비 100%로 설정 */
+    max-width: 80vw; /* 최대 너비 설정 */
+    box-sizing: border-box;
+}
+
+.createuser_container .container .header {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* 기본적으로 가운데 정렬 */
+    position: relative; /* 자식 요소들을 기준으로 절대 위치 설정 가능 */
+}
+
+.createuser_container .container .header .title {
+    font-size: 1.1rem;
+    text-align: center;
+    flex-grow: 1;
+}
+
+.createuser_container .input-id {
+    display: flex;
+    align-items: center;
+}
+
+.createuser_container .input-id input {
+    flex: 1; /* 입력 필드가 남은 공간을 차지하도록 설정 */
+    padding: 0.5vh 1vw; /* 상대적인 패딩 (뷰포트 높이 및 너비 비율) */
+    font-size: 0.8vw; /* 폰트 크기 (뷰포트 너비 비율) */
+}
+
+.createuser_container .verify-button {
+    margin-left: 1vw; /* 입력 필드와 버튼 사이의 간격 (뷰포트 너비 비율) */
+    padding: 0.5vh 1vw; /* 상대적인 패딩 (뷰포트 높이 및 너비 비율) */
+    font-size: 0.8vw; /* 폰트 크기 (뷰포트 너비 비율) */
+    cursor: pointer;
+    background-color: #007bff; /* 버튼 배경색 */
+    color: white; /* 버튼 텍스트 색 */
+    border: none;
+    border-radius: 0.5vh; /* 버튼의 테두리 둥글게 (뷰포트 높이 비율) */
+    transition: transform 0.3s ease;
+}
+
+.createuser_container .verify-button:hover {
+    transform: scale(1.05); /* 호버 시 이미지 확대 */
+}
+
+.createuser_container input[type="text"],
+.createuser_container input[type="password"],
+.createuser_container input[type="email"] {
+    display: block;
+    width: 100%; /* 너비 100%로 설정 */
+    color: black;
+    font-size: 1vw; /* 폰트 크기를 비율로 설정 */
+    padding: 1.3vw;
+    margin: 1.5vh 0 0 0;
+    height: 5vh; /* 높이를 비율로 설정 */
+    box-sizing: border-box;
+    border: 0.1vw solid #ccc;
+    border-radius: 0.8vw;
+}
+
+.createuser_container .signup,
+.createuser_container .login {
+    display: block;
+    width: 100%; /* 너비 100%로 설정 */
+    font-size: 0.8vw; /* 폰트 크기를 더 작게 조정 */
+    color: #27344a;
+    background-color: #8ba0c2;
+    padding: 1.5vw; /* 패딩을 더 작게 조정 */
+    text-align: center;
+    margin-top: 2vh;
+    height: 4vh; /* 높이를 더 작게 조정 */
+    line-height: 0.9vh; /* 텍스트의 수직 정렬을 맞추기 위한 line-height 설정 */
+    box-sizing: border-box;
+    border: 0.1vw solid #ccc;
+    text-decoration: none; /* 밑줄 제거 */
+    border-radius: 0.8vw;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.createuser_container .signup:hover,
+.createuser_container .login:hover {
+  transform: scale(1.05); /* 호버 시 이미지 확대 */
+}
+
+.createuser_container .signup {
+    background-color: #8ba0c2;
+}
+
+.createuser_container .login {
+    background-color: #f5f5f5;
+}
+
+.createuser_container p {
+    margin-top: 2vh;
+    font-size: 1vw; /* 폰트 크기를 비율로 설정 */
+    color: black;
+}
+
+.createuser_container .annotherLogin {
+  display: flex; /* Flexbox를 사용하여 아이템을 수평으로 배치 */
+  justify-content: center; /* 이미지들을 중앙에 정렬 */
+  align-items: center; /* 세로 방향으로 중앙 정렬 */
+  gap: 1rem; /* 이미지들 사이의 간격 설정 (필요에 따라 조정) */
+  width: 100%; /* 부모 요소에 맞게 조정 */
+  max-width: 600px; /* 최대 너비 설정 (필요에 따라 조정) */
+  margin-bottom: 2vh; /* 하단 여백 설정 */
+  text-align: center; /* 텍스트 중앙 정렬 (선택 사항) */
+}
+
+.createuser_container .annotherLogin img {
+  width: 35px; /* 이미지 너비 설정 (필요에 따라 조정) */
+  height: auto; /* 비율에 맞게 높이 자동 조정 */
+  cursor: pointer; /* 클릭 시 포인터 커서 */
+  border-radius: 5px; /* 이미지에 둥근 모서리 추가 (선택 사항) */
+  transition: transform 0.3s ease; /* 호버 시 확대 효과 추가 (선택 사항) */
+}
+
+.createuser_container .annotherLogin img:hover {
+  transform: scale(1.1); /* 호버 시 이미지 확대 */
+}
+
+.createuser_container .find-container {
+  display: flex; /* Flexbox를 사용하여 아이템을 수평으로 배치 */
+  align-items: center; /* 세로 방향으로 중앙 정렬 */
+  justify-content: flex-end; /* 가로 방향으로 오른쪽 정렬 */
+  gap: 0.5rem; /* 아이템들 사이의 간격 설정 */
+  margin-top: 2vh; /* 상단 여백 비율 설정 */
+  width: 100%; /* 부모 요소에 맞게 조정 */
+}
+
+.createuser_container .find-container p {
+  margin: 0; /* 기본 마진 제거 */
+  color: gray; /* 텍스트 색상 설정 */
+}
+
+.createuser_container .find-container a {
+  color: #1e90ff; /* 링크 색상 설정 */
+  text-decoration: none; /* 링크 밑줄 제거 */
+  font-size: 1rem; /* 링크 폰트 크기 설정 */
+  transition: color 0.2s ease; /* 호버 시 색상 변경 애니메이션 추가 */
+}
+
+.createuser_container .find-container a:hover {
+  color: #ff4500; /* 호버 시 링크 색상 변경 */
+  cursor: pointer;
+}
+
+/* 미디어 쿼리: 모바일 디바이스 */
+@media (max-width: 600px) {
+
+    .createuser_container .logo {
+        margin-bottom: 2vh; /* 상단 텍스트와 컨테이너 사이의 간격 비율 설정 */
+        width: 100%; /* 부모 요소에 맞게 조정 */
+        max-width: 70vw; /* 최대 너비 설정 */
+        text-align: center; /* 이미지 중앙 정렬 */
+    }
+
+    .createuser_container {
+        margin-top: 3vh; /* 상단 여백 조정 */
+        width: 90vw; /* 너비 조정 */
+    }
+
+    .createuser_container .container {
+        padding: 5vw; /* 패딩 조정 */
+    }
+
+    .createuser_container .verify-button {
+        margin-left: 3vw; /* 입력 필드와 버튼 사이의 간격 (뷰포트 너비 비율) */
+        padding: 0.5vh 1vw; /* 상대적인 패딩 (뷰포트 높이 및 너비 비율) */
+        font-size: 2.5vw; /* 폰트 크기 (뷰포트 너비 비율) */
+        cursor: pointer;
+        background-color: #007bff; /* 버튼 배경색 */
+        color: white; /* 버튼 텍스트 색 */
+        border: none;
+        border-radius: 0.5vh; /* 버튼의 테두리 둥글게 (뷰포트 높이 비율) */
+        transition: transform 0.3s ease;
+    }
+
+    .createuser_container input[type="text"],
+    .createuser_container input[type="password"],
+    .createuser_container input[type="email"] {
+        font-size: 3vw; /* 폰트 크기 조정 */
+        padding: 3vw; /* 패딩 조정 */
+        height: 7vh; /* 높이 조정 */
+    }
+
+    .createuser_container .signup,
+    .createuser_container .login {
+        font-size: 4vw; /* 폰트 크기 조정 */
+        padding: 3vw; /* 패딩 조정 */
+        height: 6vh; /* 높이 조정 */
+        line-height: 1vh; /* 수직 정렬 조정 */
+    }
+
+    .createuser_container p {
+        font-size: 3.5vw; /* 폰트 크기 조정 */
+    }
+
+    .createuser_container .find-container a {
+        font-size: 3.5vw; /* 폰트 크기 조정 */
+    }
+}
+
+/* 미디어 쿼리: 태블릿 및 큰 화면 디바이스 */
+@media (min-width: 601px) and (max-width: 1024px) {
+    .createuser_container {
+        margin-top: 4vh; /* 상단 여백 조정 */
+        width: 60vw; /* 너비 조정 */
+    }
+
+    .createuser_container .container {
+        padding: 4vw; /* 패딩 조정 */
+    }
+
+    .createuser_container .verify-button {
+        margin-left: 1vw; /* 입력 필드와 버튼 사이의 간격 (뷰포트 너비 비율) */
+        padding: 0.5vh 1vw; /* 상대적인 패딩 (뷰포트 높이 및 너비 비율) */
+        font-size: 0.8vw; /* 폰트 크기 (뷰포트 너비 비율) */
+        cursor: pointer;
+        background-color: #007bff; /* 버튼 배경색 */
+        color: white; /* 버튼 텍스트 색 */
+        border: none;
+        border-radius: 0.5vh; /* 버튼의 테두리 둥글게 (뷰포트 높이 비율) */
+        transition: transform 0.3s ease;
+    }
+
+    .createuser_container input[type="text"],
+    .createuser_container input[type="password"],
+    .createuser_container input[type="email"] {
+        font-size: 2vw;
+        height: 5vh; /* 높이 조정 */
+        padding: 1.5vw;
+    }
+
+    .createuser_container .signup,
+    .createuser_container .login {
+        font-size: 2vw;
+        height: 5.5vh; /* 높이 조정 */
+        padding: 1.5vw;
+    }
+
+    .createuser_container .button {
+        padding: 1.5vw 3vw;
+        font-size: 2vw;
+    }
+
+    .createuser_container .find-container a {
+        font-size: 1rem; /* 링크 폰트 크기 설정 */
+    }
+}
